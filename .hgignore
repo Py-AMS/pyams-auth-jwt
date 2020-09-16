@@ -1,0 +1,23 @@
+
+syntax: regexp
+^develop-eggs$
+syntax: regexp
+^parts$
+syntax: regexp
+^bin$
+syntax: regexp
+^eggs$
+syntax: regexp
+^\.installed\.cfg$
+syntax: regexp
+^\.settings$
+syntax: regexp
+^build$
+syntax: regexp
+^dist$
+syntax: regexp
+^\.idea$
+syntax: regexp
+.*\.pyc$
+syntax: regexp
+^docs/build$
