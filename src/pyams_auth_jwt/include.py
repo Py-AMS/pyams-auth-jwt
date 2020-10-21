@@ -43,7 +43,6 @@ def include_package(config):
         pass
     else:
         from jwt.contrib.algorithms.pycrypto import RSAAlgorithm
-        # pylint: disable=import-outside-toplevel
         jwt.unregister_algorithm('RS256')
         jwt.register_algorithm('RS256', RSAAlgorithm(RSAAlgorithm.SHA256))
         jwt.unregister_algorithm('RS512')
@@ -55,7 +54,6 @@ def include_package(config):
         pass
     else:
         from jwt.contrib.algorithms.py_ecdsa import ECAlgorithm
-        # pylint: disable=import-outside-toplevel
         jwt.unregister_algorithm('ES256')
         jwt.register_algorithm('ES256', ECAlgorithm(ECAlgorithm.SHA256))
         jwt.unregister_algorithm('ES512')

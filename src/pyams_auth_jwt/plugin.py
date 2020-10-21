@@ -63,7 +63,7 @@ class JWTSecurityConfiguration(Persistent, Contained):
 
 
 @subscriber(IObjectModifiedEvent, context_selector=IJWTSecurityConfiguration)
-def handle_modified_configuration(event):
+def handle_modified_configuration(event):  # pylint: disable=unused-argument
     """Handle JWT configuration update"""
     plugin = query_utility(IJWTAuthenticationPlugin)
     if plugin is not None:
@@ -93,15 +93,17 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
     json_encoder = None
 
     @classproperty
-    def http_header(cls):
+    def http_header(cls):  # pylint: disable=no-self-argument,no-self-use
+        """HTTP header setting"""
         return get_current_registry().settings.get('pyams.jwt.http_header', 'Authorization')
 
     @classproperty
-    def auth_type(cls):
+    def auth_type(cls):  # pylint: disable=no-self-argument,no-self-use
+        """HTTP authication type setting"""
         return get_current_registry().settings.get('pyams.jwt.auth_type', 'Bearer')
 
     @volatile_property
-    def configuration(self):
+    def configuration(self):  # pylint: disable=no-self-use
         """JWT configuration getter"""
         try:
             manager = query_utility(ISecurityManager)
@@ -109,17 +111,20 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
                 return IJWTSecurityConfiguration(manager)
         except ConnectionStateError:
             return None
+        return None
 
     @property
     def enabled(self):
         """Check if JWT authentication is enabled in security manager"""
         configuration = self.configuration
+        # pylint: disable=no-member
         return configuration.enabled if (configuration is not None) else False
 
     @property
     def expiration(self):
         """Get default security manager expiration"""
         configuration = self.configuration
+        # pylint: disable=no-member
         return configuration.expiration if configuration is not None else None
 
     def create_token(self, principal, expiration=None, audience=None, **claims):
@@ -139,10 +144,13 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
         audience = audience or self.audience
         if audience:
             payload['aud'] = audience
+        # pylint: disable=no-member
         algorithm = configuration.algorithm if configuration is not None else 'RS512'
         if algorithm.startswith('HS'):
+            # pylint: disable=no-member
             key = configuration.secret if configuration is not None else None
         else:  # RS256
+            # pylint: disable=no-member
             key = configuration.private_key if configuration is not None else None
         token = jwt.encode(payload, key, algorithm=algorithm, json_encoder=self.json_encoder)
         if not isinstance(token, str):
@@ -154,14 +162,14 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
         """Get JWT claims"""
         if not self.enabled:
             return {}
-        if self.http_header == 'Authorization':
+        if self.http_header == 'Authorization':  # pylint: disable=comparison-with-callable
             try:
                 if request.authorization is None:
                     return {}
             except (ValueError, AttributeError):  # invalid authorization header
                 return {}
             (auth_type, token) = request.authorization
-            if auth_type != self.auth_type:
+            if auth_type != self.auth_type:  # pylint: disable=comparison-with-callable
                 return {}
         else:
             token = request.headers.get(self.http_header)
@@ -169,10 +177,13 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
             return {}
         try:
             configuration = self.configuration
+            # pylint: disable=no-member
             algorithm = configuration.algorithm if configuration is not None else 'RS512'
             if algorithm.startswith('HS'):
+                # pylint: disable=no-member
                 key = configuration.secret if configuration is not None else None
             else:  # RS256/RS512
+                # pylint: disable=no-member
                 key = configuration.public_key if configuration is not None else None
             claims = jwt.decode(token, key, algorithms=[algorithm],
                                 leeway=self.leeway, audience=self.audience)

@@ -25,7 +25,7 @@ from pyams_utils.registry import query_utility
 
 __docformat__ = 'restructuredtext'
 
-from pyams_auth_jwt import _
+from pyams_auth_jwt import _  # pylint: disable=ungrouped-imports
 
 
 @view_config(route_name='jwt_login', renderer='json', xhr=True, request_method='POST')
