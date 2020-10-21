@@ -14,7 +14,7 @@ credentials from matching "Authorization headers:
 
     >>> from pyramid.testing import setUp, tearDown, DummyRequest
     >>> from pyramid.threadlocal import manager
-    >>> config = setUp()
+    >>> config = setUp(hook_zca=True)
     >>> config.registry.settings['zodbconn.uri'] = 'memory://'
 
     >>> from pyramid_zodbconn import includeme as include_zodbconn
@@ -28,7 +28,7 @@ credentials from matching "Authorization headers:
     >>> from pyams_auth_jwt import includeme as include_auth_jwt
     >>> include_auth_jwt(config)
 
-    >>> from pyams_utils.registry import set_local_registry
+    >>> from pyams_utils.registry import get_utility, set_local_registry
     >>> registry = config.registry
     >>> set_local_registry(registry)
 
@@ -38,25 +38,40 @@ credentials from matching "Authorization headers:
     Upgrading PyAMS timezone to generation 1...
     Upgrading PyAMS security to generation 1...
 
+    >>> from zope.traversing.interfaces import BeforeTraverseEvent
+    >>> from pyams_utils.registry import handle_site_before_traverse
+    >>> handle_site_before_traverse(BeforeTraverseEvent(app, request))
+
+    >>> from pyams_security.interfaces import ISecurityManager
+    >>> sm = get_utility(ISecurityManager)
+
+    >>> from pyams_security.interfaces import ICredentialsPlugin
+    >>> plugin = get_utility(ICredentialsPlugin, name='jwt')
+
+
+Using PyAMS security policy
+---------------------------
+
+The plugin should be included correctly into PyAMS security policy:
+
     >>> from pyramid.authorization import ACLAuthorizationPolicy
     >>> config.set_authorization_policy(ACLAuthorizationPolicy())
-    >>> from pyams_security.utility import PyAMSAuthenticationPolicy
+
+    >>> from pyams_security.policy import PyAMSAuthenticationPolicy
     >>> policy = PyAMSAuthenticationPolicy(secret='my secret',
     ...                                    http_only=True,
     ...                                    secure=False)
     >>> config.set_authentication_policy(policy)
 
-    >>> from zope.traversing.interfaces import BeforeTraverseEvent
-    >>> from pyramid.threadlocal import manager
-    >>> from pyams_utils.registry import handle_site_before_traverse
-    >>> handle_site_before_traverse(BeforeTraverseEvent(app, request))
-    >>> manager.push({'request': request, 'registry': config.registry})
+    >>> from pyams_security.tests import new_test_request
+    >>> request = new_test_request('admin', 'admin', registry=config.registry)
 
-    >>> from pyams_security.interfaces import ISecurityManager
-    >>> from pyams_utils.registry import get_utility
-    >>> sm = get_utility(ISecurityManager)
-    >>> sm
-    <...SecurityManager object at 0x...>
+    >>> plugin in sm.credentials_plugins
+    True
+    >>> plugin in sm.authentication_plugins
+    False
+    >>> plugin in sm.directory_plugins
+    False
 
 
 Using JWT authentication
@@ -76,6 +91,9 @@ You have to set several security manager properties to use JWT:
     >>> jwt_configuration = IJWTSecurityConfiguration(sm)
     >>> jwt_configuration.secret = ''
     >>> jwt_configuration.enabled = True
+
+    >>> plugin.enabled
+    True
 
     >>> errors = []
     >>> IJWTSecurityConfiguration.validateInvariants(jwt_configuration, errors)
@@ -130,12 +148,16 @@ This error is normal, because the user doesn't actually exist! So let's create i
 
 Let's now try to use this token:
 
-    >>> jwt_request = DummyRequest(authorization=('JWT', jwt_result['token']))
+    >>> jwt_request = DummyRequest(authorization=('Bearer', jwt_result['token']))
     >>> jwt_request.unauthenticated_userid
     'users:user1'
     >>> jwt_principal_id = sm.authenticated_userid(jwt_request)
     >>> jwt_principal_id
     'users:user1'
+
+    >>> plugin.unauthenticated_userid(jwt_request)
+    'users:user1'
+
 
 JWT authentication generally don't use cookies; but "remember" and "forget" authentication
 policy methods can be used anyway, and will return usual cookies:
@@ -158,7 +180,7 @@ We can try the same process using bad credentials or a bad JWT token:
     >>> pprint.pprint(jwt_result)
     {'message': 'Invalid credentials!', 'status': 'error'}
 
-    >>> jwt_request = DummyRequest(authorization=('JWT', 'abc.def.ghi'), remote_addr='127.0.0.1')
+    >>> jwt_request = DummyRequest(authorization=('Bearer', 'abc.def.ghi'), remote_addr='127.0.0.1')
     >>> jwt_principal_id = sm.authenticated_userid(jwt_request)
     >>> jwt_principal_id is None
     True
@@ -228,6 +250,10 @@ Let's try to use another JWT configuration:
     {'status': 'success',
      'token': 'eyJ...'}
 
+We are also going to change the token authorization type:
+
+    >>> config.registry.settings['pyams.jwt.auth_type'] = 'JWT'
+
     >>> jwt_request = DummyRequest(authorization=('JWT', jwt_result['token']))
     >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
     >>> pprint.pprint(jwt_request.get_jwt_claims())
@@ -254,8 +280,9 @@ so we have to create a new request:
     ...                            params={'login': 'user1', 'password': 'passwd'})
     >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
     >>> jwt_result = jwt_login(jwt_request)
-    >>> pprint.pprint(jwt_result)
-    {'status': 'success', 'token': None}
+    Traceback (most recent call last):
+    ...
+    pyramid.httpexceptions.HTTPNotFound: The resource could not be found.
 
 
 Tests cleanup:
