@@ -32,7 +32,8 @@ from pyams_security.credential import Credentials
 from pyams_security.interfaces import ICredentialsPlugin, ISecurityManager
 from pyams_utils.adapter import adapter_config, get_annotation_adapter
 from pyams_utils.factory import factory_config
-from pyams_utils.registry import query_utility, utility_config
+from pyams_utils.property import ClassPropertyType, classproperty
+from pyams_utils.registry import get_current_registry, query_utility, utility_config
 from pyams_utils.wsgi import wsgi_environ_cache
 from pyams_utils.zodb import volatile_property
 
@@ -80,7 +81,7 @@ def securiy_manager_jwt_configuration_factory(context):
 
 @utility_config(provides=IJWTAuthenticationPlugin)
 @utility_config(name='jwt', provides=ICredentialsPlugin)
-class JWTAuthenticationPlugin:
+class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
     """JWT authentication plugin"""
 
     prefix = 'jwt'
@@ -88,10 +89,16 @@ class JWTAuthenticationPlugin:
 
     audience = None
     leeway = 0
-    http_header = 'Authorization'
-    auth_type = 'JWT'
     callback = None
     json_encoder = None
+
+    @classproperty
+    def http_header(cls):
+        return get_current_registry().settings.get('pyams.jwt.http_header', 'Authorization')
+
+    @classproperty
+    def auth_type(cls):
+        return get_current_registry().settings.get('pyams.jwt.auth_type', 'Bearer')
 
     @volatile_property
     def configuration(self):
