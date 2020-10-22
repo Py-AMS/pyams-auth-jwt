@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.0.2
+-----
+ - updated package description to allow upload to Pypi!
+
 1.0.1
 -----
  - removed upload of coverage data to Coveralls.io because of unknown errors
