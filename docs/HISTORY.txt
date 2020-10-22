@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.0.1
+-----
+ - removed upload of coverage data to Coveralls.io because of unknown errors
+
 1.0.0
 -----
  - initial release
