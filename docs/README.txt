@@ -1,6 +1,6 @@
-===================
-PyAMS JWT authentication package package
-===================
+================================
+PyAMS JWT authentication package
+================================
 
 .. contents::
 
