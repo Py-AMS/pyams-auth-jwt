@@ -101,7 +101,7 @@ You have to set several security manager properties to use JWT:
     >>> IJWTSecurityConfiguration.validateInvariants(jwt_configuration, errors)
     Traceback (most recent call last):
     ...
-    zope.interface.exceptions.Invalid: [Invalid('You must define a private and a public key to use RS256 algorithm',)]
+    zope.interface.exceptions.Invalid: [Invalid('You must define a private and a public key to use RS256 algorithm'...)]
 
     >>> jwt_configuration.algorithm = 'HS256'
     >>> jwt_configuration.secret = 'my secret'
