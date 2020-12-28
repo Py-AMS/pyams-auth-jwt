@@ -19,6 +19,8 @@ credentials from matching "Authorization headers:
 
     >>> from pyramid_zodbconn import includeme as include_zodbconn
     >>> include_zodbconn(config)
+    >>> from cornice import includeme as include_cornice
+    >>> include_cornice(config)
     >>> from pyams_utils import includeme as include_utils
     >>> include_utils(config)
     >>> from pyams_site import includeme as include_site
@@ -36,7 +38,7 @@ credentials from matching "Authorization headers:
     >>> request = DummyRequest()
     >>> app = upgrade_site(request)
     Upgrading PyAMS timezone to generation 1...
-    Upgrading PyAMS security to generation 1...
+    Upgrading PyAMS security to generation 2...
 
     >>> from zope.traversing.interfaces import BeforeTraverseEvent
     >>> from pyams_utils.registry import handle_site_before_traverse
@@ -99,7 +101,7 @@ You have to set several security manager properties to use JWT:
     >>> IJWTSecurityConfiguration.validateInvariants(jwt_configuration, errors)
     Traceback (most recent call last):
     ...
-    zope.interface.interfaces.Invalid: You must define a private and a public key to use RS256 algorithm
+    zope.interface.exceptions.Invalid: [Invalid('You must define a private and a public key to use RS256 algorithm',)]
 
     >>> jwt_configuration.algorithm = 'HS256'
     >>> jwt_configuration.secret = 'my secret'
@@ -110,15 +112,15 @@ You have to set several security manager properties to use JWT:
     []
 
     >>> from pyams_auth_jwt.plugin import create_jwt_token, get_jwt_claims
-    >>> from pyams_auth_jwt.skin import login as jwt_login
+    >>> from pyams_auth_jwt.api import get_jwt_token
 
     >>> DummyRequest().unauthenticated_userid is None
     True
 
-    >>> jwt_request = DummyRequest(method='POST', path='/api/login/jwt',
+    >>> jwt_request = DummyRequest(method='POST', path='/api/auth/jwt/login',
     ...                            params={'login': 'user1', 'password': 'passwd'})
     >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
-    >>> jwt_result = jwt_login(jwt_request)
+    >>> jwt_result = get_jwt_token(jwt_request)
     >>> pprint.pprint(jwt_result)
     {'message': 'Invalid credentials!', 'status': 'error'}
 
@@ -130,8 +132,8 @@ This error is normal, because the user doesn't actually exist! So let's create i
     >>> folder.title = 'Local users folder'
     >>> sm['users'] = folder
 
-    >>> from pyams_security.plugin.userfolder import User
-    >>> user1 = User()
+    >>> from pyams_security.plugin.userfolder import LocalUser
+    >>> user1 = LocalUser()
     >>> user1.self_registered = False
     >>> user1.login = 'user1'
     >>> user1.email = 'user@example.com'
@@ -141,14 +143,20 @@ This error is normal, because the user doesn't actually exist! So let's create i
     >>> user1.activated = True
     >>> folder[user1.login] = user1
 
-    >>> jwt_result = jwt_login(jwt_request)
+    >>> jwt_result = get_jwt_token(jwt_request)
     >>> pprint.pprint(jwt_result)
-    {'status': 'success',
-     'token': 'eyJ...'}
+    {'accessToken': 'eyJ...',
+     'refreshToken': 'eyJ...',
+     'status': 'success'}
 
-Let's now try to use this token:
+Let's now try to use this token; this requires a Beaker cache:
 
-    >>> jwt_request = DummyRequest(authorization=('Bearer', jwt_result['token']))
+    >>> from beaker.cache import CacheManager, cache_regions
+    >>> cache = CacheManager(**{'cache.type': 'memory'})
+    >>> cache_regions.update({'short': {'type': 'memory', 'expire': 0}})
+    >>> cache_regions.update({'long': {'type': 'memory', 'expire': 0}})
+
+    >>> jwt_request = DummyRequest(authorization=('Bearer', jwt_result['accessToken']))
     >>> jwt_request.unauthenticated_userid
     'users:user1'
     >>> jwt_principal_id = sm.authenticated_userid(jwt_request)
@@ -173,10 +181,10 @@ policy methods can be used anyway, and will return usual cookies:
 
 We can try the same process using bad credentials or a bad JWT token:
 
-    >>> jwt_request = DummyRequest(method='POST', path='/api/login/jwt',
+    >>> jwt_request = DummyRequest(method='POST', path='/api/auth/jwt/login',
     ...                            params={'login': 'user1', 'password': 'badpasswd'})
     >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
-    >>> jwt_result = jwt_login(jwt_request)
+    >>> jwt_result = get_jwt_token(jwt_request)
     >>> pprint.pprint(jwt_result)
     {'message': 'Invalid credentials!', 'status': 'error'}
 
@@ -227,7 +235,7 @@ Let's try to use another JWT configuration:
     ... y18Ae9n7dHVueyslrb6weq7dTkYDi3iOYRW8HRkIQh06wEdbxt0shTzAJvvCQfrB
     ... jg/3747WSsf/zBTcHihTRBdAv6OmdhV4/dD5YBfLAkLrd+mX7iE=
     ... -----END RSA PRIVATE KEY-----'''
-    >>> jwt_configuration.expiration = 3600
+    >>> jwt_configuration.access_expiration = 3600
 
     >>> errors = []
     >>> IJWTSecurityConfiguration.validateInvariants(jwt_configuration, errors)
@@ -242,51 +250,199 @@ Let's try to use another JWT configuration:
     >>> plugin = get_utility(IJWTAuthenticationPlugin)
     >>> plugin.audience = 'app:app1'
 
-    >>> jwt_request = DummyRequest(method='POST', path='/api/login/jwt',
+    >>> jwt_request = DummyRequest(method='POST', path='/api/auth/jwt/login',
     ...                            params={'login': 'user1', 'password': 'passwd'})
     >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
-    >>> jwt_result = jwt_login(jwt_request)
+    >>> jwt_result = get_jwt_token(jwt_request)
     >>> pprint.pprint(jwt_result)
-    {'status': 'success',
-     'token': 'eyJ...'}
+    {'accessToken': 'eyJ...',
+     'refreshToken': 'eyJ...',
+     'status': 'success'}
 
 We are also going to change the token authorization type:
 
     >>> config.registry.settings['pyams.jwt.auth_type'] = 'JWT'
 
-    >>> jwt_request = DummyRequest(authorization=('JWT', jwt_result['token']))
-    >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
-    >>> pprint.pprint(jwt_request.get_jwt_claims())
-    {'aud': 'app:app1', 'exp': ..., 'iat': ..., 'sub': 'users:user1'}
-
-    >>> jwt_request.unauthenticated_userid
-    'users:user1'
-
-Disabling the JWT configuration always return empty results:
-
-    >>> jwt_configuration.enabled = False
-    >>> jwt_request.unauthenticated_userid
-    'users:user1'
-
-Why does the plugin return this result? That's because claims are stored into request environment,
-so we have to create a new request:
-
-    >>> jwt_request = DummyRequest(authorization=('JWT', jwt_result['token']))
+    >>> jwt_request = DummyRequest()
     >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
     >>> pprint.pprint(jwt_request.get_jwt_claims())
     {}
 
-    >>> jwt_request = DummyRequest(method='POST', path='/api/login/jwt',
+    >>> jwt_request = DummyRequest(authorization=('Bearer', jwt_result['accessToken']))
+    >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> pprint.pprint(jwt_request.get_jwt_claims())
+    {}
+
+    >>> jwt_request = DummyRequest(authorization=('JWT', jwt_result['accessToken']))
+    >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> pprint.pprint(jwt_request.get_jwt_claims())
+    {'aud': 'app:app1',
+     'exp': ...,
+     'iat': ...,
+     'obj': 'access',
+     'sub': 'users:user1'}
+
+    >>> plugin.unauthenticated_userid(jwt_request)
+    'users:user1'
+
+We can also change the HTTP header used to get JWT token:
+
+    >>> config.registry.settings['pyams.jwt.http_header'] = 'X-PyAMS-Authorization'
+
+    >>> jwt_request = DummyRequest()
+    >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> pprint.pprint(jwt_request.get_jwt_claims())
+    {}
+
+    >>> jwt_request = DummyRequest(headers={'X-PyAMS-Authorization': jwt_result['accessToken']})
+    >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> pprint.pprint(jwt_request.get_jwt_claims())
+    {'aud': 'app:app1',
+     'exp': ...,
+     'iat': ...,
+     'obj': 'access',
+     'sub': 'users:user1'}
+
+    >>> del config.registry.settings['pyams.jwt.http_header']
+
+Disabling the JWT configuration always return empty results:
+
+    >>> jwt_configuration.enabled = False
+    >>> jwt_request.unauthenticated_userid is None
+    True
+
+Claims are stored into request environment, so we have to create a new request:
+
+    >>> jwt_request = DummyRequest(authorization=('JWT', jwt_result['accessToken']))
+    >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> pprint.pprint(jwt_request.get_jwt_claims())
+    {}
+
+    >>> jwt_request = DummyRequest(method='POST', path='/api/auth/jwt/token',
     ...                            params={'login': 'user1', 'password': 'passwd'})
     >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
-    >>> jwt_result = jwt_login(jwt_request)
+    >>> jwt_result = get_jwt_token(jwt_request)
     Traceback (most recent call last):
     ...
-    pyramid.httpexceptions.HTTPNotFound: The resource could not be found.
+    pyramid.httpexceptions.HTTPServiceUnavailable: The server is currently unavailable. Please try again at a later time.
+
+
+Testing plugin API
+------------------
+
+We first have to get JWT tokens; let's reactivate our plug-in:
+
+    >>> config.registry.settings['pyams.jwt.auth_type'] = 'Bearer'
+    >>> jwt_configuration.enabled = True
+
+    >>> jwt_request = DummyRequest(method='PATCH', path='/api/auth/jwt/token')
+    >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
+    >>> jwt_result = get_jwt_token(jwt_request)
+    Traceback (most recent call last):
+    ...
+    pyramid.httpexceptions.HTTPBadRequest: The server could not comply with the request since it is either malformed or otherwise incorrect.
+
+    >>> jwt_request = DummyRequest(method='PATCH', path='/api/auth/jwt/token',
+    ...                            params={'login': 'user1', 'password': 'passwd'})
+    >>> jwt_result = get_jwt_token(jwt_request)
+    >>> pprint.pprint(jwt_result)
+    {'accessToken': 'eyJ...',
+     'refreshToken': 'eyJ...',
+     'status': 'success'}
+
+We can now try to get a new access token, using the previous refresh token:
+
+    >>> from pyams_auth_jwt.api import refresh_jwt_token
+
+    >>> jwt_request = DummyRequest(authorization=('Bearer', jwt_result['refreshToken']))
+    >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> pprint.pprint(jwt_request.get_jwt_claims())
+    {'aud': 'app:app1',
+     'exp': ...,
+     'iat': ...,
+     'obj': 'refresh',
+     'sub': 'users:user1'}
+    >>> jwt_refresh = refresh_jwt_token(jwt_request)
+    >>> pprint.pprint(jwt_refresh)
+    {'accessToken': 'eyJ...',
+     'status': 'success'}
+
+    >>> import jwt
+    >>> pprint.pprint(jwt.decode(jwt_refresh['accessToken'], key=jwt_configuration.public_key,
+    ...                          algorithms=[jwt_configuration.algorithm], audience='app:app1'))
+    {'aud': 'app:app1',
+     'exp': ...,
+     'iat': ...,
+     'obj': 'access',
+     'sub': 'users:user1'}
+
+We can always try o refresh a token without providing any access token:
+
+    >>> jwt_request = DummyRequest()
+    >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> refresh_jwt_token(jwt_request)
+    Traceback (most recent call last):
+    ...
+    pyramid.httpexceptions.HTTPForbidden: Access was denied to this resource.
+
+
+Let's finally try to verify a token; this requires a POST on another access point:
+
+    >>> from pyams_auth_jwt.api import verify_jwt_token
+
+    >>> jwt_request = DummyRequest(authorization=('Bearer', jwt_result['refreshToken']))
+    >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> verify_jwt_token(jwt_request)
+    {'status': 'success'}
+
+    >>> another_token = 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJvYmoiOiJhY2Nlc3MiLCJpYXQiOjE2MDg2NDU2NzQsImV4cCI6MTYwODY0OTI3NCwic3ViIjoic3lzdGVtOmFkbWluIn0.HeKZILlFb9qWA0quEwlLTlgWGA3nMx32bsnao1GFNxSR5_7NDlG3XJhzMMWvR7iMwf6u2AdLiVajZSDtpi1UVQ'
+    >>> jwt_request = DummyRequest(authorization=('Bearer', another_token))
+    >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> verify_jwt_token(jwt_request)
+    Traceback (most recent call last):
+    ...
+    pyramid.httpexceptions.HTTPUnauthorized: ...
+
+
+Custom JWT tokens object predicate
+----------------------------------
+
+When a view is protected by a JWT token, you can add a custom predicate to specify which token
+type is authorized.
+
+PyAMS JWT plug-in actually provides two tokens objects, which are "access" and "refresh".
+
+    >>> from pyams_auth_jwt.interfaces import ACCESS_OBJECT
+    >>> from pyams_auth_jwt.plugin import JWTTokenObjectPredicate
+
+    >>> predicate = JWTTokenObjectPredicate(ACCESS_OBJECT, config)
+    >>> predicate.text()
+    'jwt_object = access'
+
+    >>> jwt_request = DummyRequest(method='POST', path='/api/auth/jwt/login',
+    ...                            params={'login': 'user1', 'password': 'passwd'})
+    >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
+    >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> jwt_result = get_jwt_token(jwt_request)
+    >>> pprint.pprint(jwt_result)
+    {'accessToken': 'eyJ...',
+     'refreshToken': 'eyJ...',
+     'status': 'success'}
+
+    >>> jwt_access = DummyRequest(authorization=('Bearer', jwt_result['accessToken']))
+    >>> jwt_access.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> predicate(None, jwt_access)
+    True
+
+    >>> jwt_refresh = DummyRequest(authorization=('Bearer', jwt_result['refreshToken']))
+    >>> jwt_refresh.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> predicate(None, jwt_refresh)
+    False
 
 
 Tests cleanup:
 
     >>> set_local_registry(None)
     >>> manager.clear()
+
     >>> tearDown()

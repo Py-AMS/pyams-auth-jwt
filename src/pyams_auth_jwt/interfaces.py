@@ -12,11 +12,10 @@
 
 """PyAMS JWT authentication package.interfaces module
 
-This module provides custom package interfaces
+This module provides public interfaces.
 """
 
-from zope.interface import Attribute, Interface, invariant
-from zope.interface.interfaces import Invalid
+from zope.interface import Attribute, Interface, Invalid, invariant
 from zope.schema import Bool, Choice, Int, Text, TextLine
 
 from pyams_security.interfaces import IAuthenticationPlugin
@@ -31,6 +30,16 @@ from pyams_auth_jwt import _
 # JWT authentication utility interface
 #
 
+JWT_CONFIGURATION_KEY = 'pyams_auth_jwt.configuration'
+"""Main OAuth configuration key"""
+
+ACCESS_OBJECT = 'access'
+"""JWT token used for authentication"""
+
+REFRESH_OBJECT = 'refresh'
+"""JWT token used for refresh"""
+
+
 class IJWTSecurityConfiguration(Interface):
     """Security manager configuration interface for JWT"""
 
@@ -39,13 +48,9 @@ class IJWTSecurityConfiguration(Interface):
                    required=False,
                    default=False)
 
-    use_cookie = Bool(title=_("Send cookie?"),
-                      description=_("If 'yes', a session cookie will be sent on authentication"),
-                      required=False,
-                      default=False)
-
     algorithm = Choice(title=_("JWT encoding algorithm"),
-                       description=_(""),
+                       description=_("HS* protocols are using the secret, while RS* protocols "
+                                     "are using RSA keys"),
                        required=False,
                        values=('RS256', 'RS512', 'HS256', 'HS512'),
                        default='RS512')
@@ -62,9 +67,15 @@ class IJWTSecurityConfiguration(Interface):
                       description=_("The public key is required when using RS* algorithm"),
                       required=False)
 
-    expiration = Int(title=_("Token lifetime"),
-                     description=_("JWT token lifetime, in seconds"),
-                     required=False)
+    access_expiration = Int(title=_("Access token lifetime"),
+                            description=_("JWT access token lifetime, in seconds"),
+                            required=False,
+                            default=60 * 60)
+
+    refresh_expiration = Int(title=_("Refresh token lifetime"),
+                             description=_("JWT refresh token lifetime, in seconds"),
+                             required=False,
+                             default=60 * 60 * 24 * 7)
 
     @invariant
     def check_configuration(self):

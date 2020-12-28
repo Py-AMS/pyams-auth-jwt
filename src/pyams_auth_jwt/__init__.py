@@ -12,7 +12,7 @@
 
 """PyAMS JWT authentication package package
 
-PyAMS security plug-in for JWT authentication
+PyAMS security plug-in for JWT authentication.
 """
 
 __docformat__ = 'restructuredtext'

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE 1.0\n"
-"POT-Creation-Date: 2020-09-16 23:07+0200\n"
+"POT-Creation-Date: 2020-12-22 17:58+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,81 +11,134 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Lingua 3.10.dev0\n"
 
-#: src/pyams_auth_jwt/skin.py:52
-msgid "Invalid credentials!"
-msgstr "Paramètres de connexion invalides !"
-
-#: src/pyams_auth_jwt/plugin.py:87
+#: src/pyams_auth_jwt/plugin.py:79
 msgid "JWT authentication credentials"
 msgstr "Authentification JWT"
 
-#: src/pyams_auth_jwt/interfaces.py:37
+#: src/pyams_auth_jwt/interfaces.py:40
 msgid "Enable JWT login?"
 msgstr "Activer l'authentification JWT ?"
 
-#: src/pyams_auth_jwt/interfaces.py:38
+#: src/pyams_auth_jwt/interfaces.py:41
 msgid "Enable login via JWT authentication"
 msgstr "Activer la connexion via une authentification par tokens JWT"
 
-#: src/pyams_auth_jwt/interfaces.py:42
+#: src/pyams_auth_jwt/interfaces.py:45
 msgid "Send cookie?"
 msgstr "Envoyer un cookie ?"
 
-#: src/pyams_auth_jwt/interfaces.py:43
+#: src/pyams_auth_jwt/interfaces.py:46
 msgid "If 'yes', a session cookie will be sent on authentication"
 msgstr "Si 'oui', un cookie de session sera envoyé lors de l'authentification"
 
-#: src/pyams_auth_jwt/interfaces.py:47
+#: src/pyams_auth_jwt/interfaces.py:50
 msgid "JWT encoding algorithm"
 msgstr "Algorithme d'encryptage"
 
-#: src/pyams_auth_jwt/interfaces.py:53
+#: src/pyams_auth_jwt/interfaces.py:51
+msgid ""
+"HS* protocols are using the secret, while RS* protocols are using RSA keys"
+msgstr ""
+"Les protocoles de type HS utilisent le code secret, tandis que les protocoles de types RS "
+"utilisent les clés RSA"
+
+#: src/pyams_auth_jwt/interfaces.py:57
 msgid "JWT secret"
 msgstr "Code secret"
 
-#: src/pyams_auth_jwt/interfaces.py:54
+#: src/pyams_auth_jwt/interfaces.py:58
 msgid "This secret is required when using HS* encryption"
 msgstr ""
 "Ce code secret est nécessaire si vous utilisez un encryptage de type HS*"
 
-#: src/pyams_auth_jwt/interfaces.py:57
+#: src/pyams_auth_jwt/interfaces.py:61
 msgid "JWT private key"
 msgstr "Clé privée"
 
-#: src/pyams_auth_jwt/interfaces.py:58
+#: src/pyams_auth_jwt/interfaces.py:62
 msgid "The secret key is required when using RS* algorithm"
 msgstr "Une clé privée est nécessaire pour utiliser un encryptage de type RS*"
 
-#: src/pyams_auth_jwt/interfaces.py:61
+#: src/pyams_auth_jwt/interfaces.py:65
 msgid "JWT public key"
 msgstr "Clé publique"
 
-#: src/pyams_auth_jwt/interfaces.py:62
+#: src/pyams_auth_jwt/interfaces.py:66
 msgid "The public key is required when using RS* algorithm"
 msgstr ""
 "Une clé publique est nécessaire pour utiliser un encryptage de type RS*"
 
-#: src/pyams_auth_jwt/interfaces.py:65
-msgid "Token lifetime"
-msgstr "Durée de vie"
+#: src/pyams_auth_jwt/interfaces.py:69
+msgid "Access token lifetime"
+msgstr "Durée de vie des tokens d'accès"
 
-#: src/pyams_auth_jwt/interfaces.py:66
-msgid "JWT token lifetime, in seconds"
-msgstr "Durée de vie des tokens JWT, en secondes"
+#: src/pyams_auth_jwt/interfaces.py:70
+msgid "JWT access token lifetime, in seconds"
+msgstr "Durée de vie des tokens d'accès JWT, en secondes"
 
 #: src/pyams_auth_jwt/interfaces.py:74
+msgid "Refresh token lifetime"
+msgstr "Durée de vie des tokens de refresh"
+
+#: src/pyams_auth_jwt/interfaces.py:75
+msgid "JWT refresh token lifetime, in seconds"
+msgstr "Durée de vie des tokens de rafraîchissement, en secondes"
+
+#: src/pyams_auth_jwt/interfaces.py:84
 msgid "You must choose an algorithm to enable JWT authentication"
 msgstr ""
 "Vous devez sélectionner un algorithme d'encryptage pour activer "
 "l'authentification JWT"
 
-#: src/pyams_auth_jwt/interfaces.py:77
+#: src/pyams_auth_jwt/interfaces.py:87
 msgid "You must define JWT secret to use HS256 algorithm"
 msgstr ""
 "Vous devez définir un code secret pour utiliser un encryptage de type HS*"
 
-#: src/pyams_auth_jwt/interfaces.py:80
+#: src/pyams_auth_jwt/interfaces.py:90
 msgid "You must define a private and a public key to use RS256 algorithm"
 msgstr ""
 "Vous devez définir une clé privée et une clé publique pour utiliser un "
 "encryptage de type RS*"
+
+#: src/pyams_auth_jwt/api/__init__.py:70
+msgid "Invalid credentials!"
+msgstr "Paramètres de connexion invalides !"
+
+#: src/pyams_auth_jwt/zmi/plugin.py:51 src/pyams_auth_jwt/zmi/plugin.py:61
+msgid "JWT configuration"
+msgstr "Configuration JWT"
+
+#: src/pyams_auth_jwt/zmi/plugin.py:60
+msgid "Security manager"
+msgstr "Gestionnaire de sécurité"
+
+#: src/pyams_auth_jwt/zmi/plugin.py:100
+msgid ""
+"JWT authentication module provides features and a REST API which can be used "
+"to generate, refresh and verify access tokens.\n"
+"    \n"
+"You can choose to use a simple secret key to encrypt your tokens, or to use "
+"a private and a public keys (which can to be used to share tokens between "
+"two applications)\n"
+msgstr ""
+"Le module d'authentification JWT fournit des fonctionnalités ainsi qu'une "
+"API REST qui peuvent être utilisées pour générer, rafraîchir et vérifier des "
+"jetons JWT.\n"
+"\n"
+"Vous pouvez utiliser un simple secret pour encrypter les tokens, ou utiliser "
+"un couple de clés publique et privée (qui peuvent notamment être utilisées "
+"pour partager des jetons entre plusieurs applications qui peuvent s'appuyer "
+"sur une autorité d'authentification commune).\n"
+
+#: src/pyams_auth_jwt/zmi/plugin.py:115
+msgid ""
+"You can use the `openssl` command to generate your keys:\n"
+"    \n"
+"    openssl genpkey -algorithm RSA -out private-key.pem\n"
+"    openssl rsa -pubout -in private-key.pem -out public-key.pem\n"
+msgstr ""
+"Vous pouvez utiliser la commande `openssl` pour générer vos clés :\n"
+"\n"
+"        openssl genpkey -algorithm RSA -out private-key.pem\n"
+"        openssl rsa -pubout -in private-key.pem -out public-key.pem\n"
