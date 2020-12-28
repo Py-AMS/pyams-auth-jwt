@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.0
+-----
+ - added refresh tokens management with Cornice REST API
+ - added JWT configuration management interface
+
 1.0.2
 -----
  - updated package description to allow upload to Pypi!

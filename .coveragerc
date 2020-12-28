@@ -1,2 +1,3 @@
 [run]
 source = src/pyams_auth_jwt
+omit = src/pyams_auth_jwt/tests/*,src/pyams_auth_jwt/zmi/*
