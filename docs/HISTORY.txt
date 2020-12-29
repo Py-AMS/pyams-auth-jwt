@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.1.2
+-----
+ - updated french translation
+
 1.1.1
 -----
  - doctest update
