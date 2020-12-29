@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE 1.0\n"
-"POT-Creation-Date: 2020-12-22 17:58+0100\n"
+"POT-Creation-Date: 2020-12-29 11:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,88 +16,80 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Lingua 3.10.dev0\n"
 
-#: ./src/pyams_auth_jwt/plugin.py:79
+#: ./src/pyams_auth_jwt/plugin.py:74
 msgid "JWT authentication credentials"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:40
+#: ./src/pyams_auth_jwt/interfaces.py:46
 msgid "Enable JWT login?"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:41
+#: ./src/pyams_auth_jwt/interfaces.py:47
 msgid "Enable login via JWT authentication"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:45
-msgid "Send cookie?"
-msgstr ""
-
-#: ./src/pyams_auth_jwt/interfaces.py:46
-msgid "If 'yes', a session cookie will be sent on authentication"
-msgstr ""
-
-#: ./src/pyams_auth_jwt/interfaces.py:50
+#: ./src/pyams_auth_jwt/interfaces.py:51
 msgid "JWT encoding algorithm"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:51
+#: ./src/pyams_auth_jwt/interfaces.py:52
 msgid ""
 "HS* protocols are using the secret, while RS* protocols are using RSA keys"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:57
+#: ./src/pyams_auth_jwt/interfaces.py:58
 msgid "JWT secret"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:58
+#: ./src/pyams_auth_jwt/interfaces.py:59
 msgid "This secret is required when using HS* encryption"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:61
+#: ./src/pyams_auth_jwt/interfaces.py:62
 msgid "JWT private key"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:62
+#: ./src/pyams_auth_jwt/interfaces.py:63
 msgid "The secret key is required when using RS* algorithm"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:65
+#: ./src/pyams_auth_jwt/interfaces.py:66
 msgid "JWT public key"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:66
+#: ./src/pyams_auth_jwt/interfaces.py:67
 msgid "The public key is required when using RS* algorithm"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:69
+#: ./src/pyams_auth_jwt/interfaces.py:70
 msgid "Access token lifetime"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:70
+#: ./src/pyams_auth_jwt/interfaces.py:71
 msgid "JWT access token lifetime, in seconds"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:74
+#: ./src/pyams_auth_jwt/interfaces.py:75
 msgid "Refresh token lifetime"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:75
+#: ./src/pyams_auth_jwt/interfaces.py:76
 msgid "JWT refresh token lifetime, in seconds"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:84
+#: ./src/pyams_auth_jwt/interfaces.py:85
 msgid "You must choose an algorithm to enable JWT authentication"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:87
+#: ./src/pyams_auth_jwt/interfaces.py:88
 msgid "You must define JWT secret to use HS256 algorithm"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:90
+#: ./src/pyams_auth_jwt/interfaces.py:91
 msgid "You must define a private and a public key to use RS256 algorithm"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/api/__init__.py:70
+#: ./src/pyams_auth_jwt/api/__init__.py:71
 msgid "Invalid credentials!"
 msgstr ""
 
@@ -109,17 +101,16 @@ msgstr ""
 msgid "Security manager"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/zmi/plugin.py:100
+#: ./src/pyams_auth_jwt/zmi/plugin.py:99
 msgid ""
 "JWT authentication module provides features and a REST API which can be used to generate, refresh and verify access tokens.\n"
-"    \n"
 "You can choose to use a simple secret key to encrypt your tokens, or to use a private and a public keys (which can to be used to share tokens between two applications)\n"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/zmi/plugin.py:115
+#: ./src/pyams_auth_jwt/zmi/plugin.py:113
 msgid ""
 "You can use the `openssl` command to generate your keys:\n"
-"    \n"
+"\n"
 "    openssl genpkey -algorithm RSA -out private-key.pem\n"
 "    openssl rsa -pubout -in private-key.pem -out public-key.pem\n"
 msgstr ""
