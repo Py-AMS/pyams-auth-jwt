@@ -19,8 +19,9 @@ from cornice import Service
 from pyramid.httpexceptions import HTTPAccepted, HTTPBadRequest, HTTPForbidden, \
     HTTPServiceUnavailable, HTTPUnauthorized
 
-from pyams_auth_jwt.interfaces import ACCESS_OBJECT, IJWTSecurityConfiguration, REFRESH_OBJECT
-from pyams_auth_jwt.plugin import create_jwt_token, get_jwt_claims
+from pyams_auth_jwt.interfaces import ACCESS_OBJECT, IJWTProxyHandler, \
+    IJWTSecurityConfiguration, REFRESH_OBJECT
+from pyams_auth_jwt.plugin import create_jwt_token, get_jwt_claims as get_request_claims
 from pyams_security.credential import Credentials
 from pyams_security.interfaces import ISecurityManager
 from pyams_utils.registry import query_utility
@@ -40,10 +41,10 @@ jwt_token = Service(name='jwt_token',
 def get_jwt_token(request):
     """AJAX login view for JWT authentication"""
     # check security manager utility
-    manager = query_utility(ISecurityManager)
-    if manager is None:
+    sm = query_utility(ISecurityManager)  # pylint: disable=invalid-name
+    if sm is None:
         raise HTTPServiceUnavailable()
-    configuration = IJWTSecurityConfiguration(manager)
+    configuration = IJWTSecurityConfiguration(sm)
     if not configuration.enabled:
         raise HTTPServiceUnavailable()
     params = request.params
@@ -51,19 +52,28 @@ def get_jwt_token(request):
     if not login:
         raise HTTPBadRequest()
     credentials = Credentials('jwt', id=login, **params)
+    # use remote authentication authority
+    if configuration.proxy_mode:
+        handler = IJWTProxyHandler(sm, None)
+        if handler is not None:
+            status_code, tokens = handler.get_tokens(request, credentials)
+            request.response.status_code = status_code
+            return tokens
     # authenticate principal in security manager
-    principal_id = manager.authenticate(credentials, request)
+    principal_id = sm.authenticate(credentials, request)
     if principal_id is not None:
         return {
             'status': 'success',
-            'accessToken': create_jwt_token(request,
-                                            principal_id,
-                                            expiration=configuration.access_expiration,
-                                            obj=ACCESS_OBJECT),
-            'refreshToken': create_jwt_token(request,
-                                             principal_id,
-                                             expiration=configuration.refresh_expiration,
-                                             obj=REFRESH_OBJECT)
+            configuration.access_token_name:
+                create_jwt_token(request,
+                                 principal_id,
+                                 expiration=configuration.access_expiration,
+                                 obj=ACCESS_OBJECT),
+            configuration.refresh_token_name:
+                create_jwt_token(request,
+                                 principal_id,
+                                 expiration=configuration.refresh_expiration,
+                                 obj=REFRESH_OBJECT)
         }
     request.response.status_code = HTTPUnauthorized.code
     return {
@@ -72,15 +82,42 @@ def get_jwt_token(request):
     }
 
 
+@jwt_token.get(require_csrf=False)
+def get_jwt_claims(request):
+    """Extract claims from provided JWT authentication"""
+    sm = query_utility(ISecurityManager)  # pylint: disable=invalid-name
+    if sm is None:
+        raise HTTPServiceUnavailable()
+    configuration = IJWTSecurityConfiguration(sm)
+    if not configuration.enabled:
+        raise HTTPServiceUnavailable()
+    obj = request.params.get('obj')
+    if configuration.proxy_mode:
+        handler = IJWTProxyHandler(sm, None)
+        if handler is not None:
+            status_code, claims = handler.get_claims(request, obj)
+            request.response.status_code = status_code
+            return claims
+    return get_request_claims(request, obj)
+
+
 @jwt_token.patch(require_csrf=False, jwt_object=REFRESH_OBJECT)
 def refresh_jwt_token(request):
     """JWT token refresh view"""
-    manager = query_utility(ISecurityManager)
-    if manager is None:
+    sm = query_utility(ISecurityManager)
+    if sm is None:
         raise HTTPServiceUnavailable()
-    configuration = IJWTSecurityConfiguration(manager)
+    configuration = IJWTSecurityConfiguration(sm)
     if not configuration.enabled:
         raise HTTPServiceUnavailable()
+    # user remote authentication authority
+    if configuration.proxy_mode:
+        handler = IJWTProxyHandler(sm, None)
+        if handler is not None:
+            status_code, token = handler.refresh_token(request)
+            request.response.status_code = status_code
+            return token
+    # refresh token locally
     claims = get_jwt_claims(request)
     if not claims:
         raise HTTPForbidden()
@@ -89,10 +126,11 @@ def refresh_jwt_token(request):
         raise HTTPUnauthorized()
     return {
         'status': 'success',
-        'accessToken': create_jwt_token(request,
-                                        principal_id,
-                                        expiration=configuration.access_expiration,
-                                        obj=ACCESS_OBJECT)
+        configuration.access_token_name:
+            create_jwt_token(request,
+                             principal_id,
+                             expiration=configuration.access_expiration,
+                             obj=ACCESS_OBJECT)
     }
 
 

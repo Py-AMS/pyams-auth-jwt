@@ -19,6 +19,8 @@ from zope.interface import Attribute, Interface, Invalid, invariant
 from zope.schema import Bool, Choice, Int, Text, TextLine
 
 from pyams_security.interfaces import IAuthenticationPlugin
+from pyams_utils.cache import BEAKER_CACHES_VOCABULARY
+from pyams_utils.schema import HTTPMethodField
 
 
 __docformat__ = 'restructuredtext'
@@ -31,22 +33,61 @@ from pyams_auth_jwt import _
 #
 
 JWT_CONFIGURATION_KEY = 'pyams_auth_jwt.configuration'
-"""Main OAuth configuration key"""
+"""Main JWT configuration key"""
 
 ACCESS_OBJECT = 'access'
-"""JWT token used for authentication"""
+"""Object of JWT token used for authentication"""
+
+ACCESS_TOKEN_NAME = 'accessToken'
+"""Default name of JSON access token attribute"""
 
 REFRESH_OBJECT = 'refresh'
-"""JWT token used for refresh"""
+"""Object of JWT token used for refresh"""
+
+REFRESH_TOKEN_NAME = 'refreshToken'
+"""Default name of JSON refresh token attribute"""
+
+JWT_PROXY_CACHE_NAME = 'jwt_tokens'
+"""Name of the Beaker cache used to store validated tokens"""
+
+JWT_PROXY_TOKENS_NAMESPACE = 'PyAMS-auth-jwt::tokens'
+"""Cache namespace used to store validated tokens"""
+
+
+class IJWTProxyHandler(Interface):
+    """JWT proxy handler"""
+
+    def get_claims(self, request, obj=None):
+        """Get claims from given request authorization header"""
+
+    def get_tokens(self, request, credentials):
+        """Get new tokens from authentication authority"""
+
+    def refresh_token(self, request):
+        """Get new access token with refresh token authorization"""
 
 
 class IJWTSecurityConfiguration(Interface):
     """Security manager configuration interface for JWT"""
 
-    enabled = Bool(title=_("Enable JWT login?"),
-                   description=_("Enable login via JWT authentication"),
-                   required=False,
-                   default=False)
+    access_token_name = TextLine(title=_("Access token attribute"),
+                                 description=_("Name of the JSON attribute containing "
+                                               "access token returned by REST APIs"),
+                                 required=False,
+                                 default=ACCESS_TOKEN_NAME)
+
+    refresh_token_name = TextLine(title=_("Refresh token attribute"),
+                                  description=_("Name of the JSON attribute containing "
+                                                "refresh token returned by REST APIs"),
+                                  required=False,
+                                  default=REFRESH_TOKEN_NAME)
+
+    enabled = Attribute("Enabled configuration?")
+
+    local_mode = Bool(title=_("Enable JWT direct authentication?"),
+                      description=_("Enable direct login via JWT authentication"),
+                      required=False,
+                      default=False)
 
     algorithm = Choice(title=_("JWT encoding algorithm"),
                        description=_("HS* protocols are using the secret, while RS* protocols "
@@ -77,10 +118,76 @@ class IJWTSecurityConfiguration(Interface):
                              required=False,
                              default=60 * 60 * 24 * 7)
 
+    proxy_mode = Bool(title=_("Enable JWT proxy authentication?"),
+                      description=_("If this option is enabled, tokens management requests "
+                                    "will be forwarded to another authentication authority"),
+                      required=False,
+                      default=False)
+
+    authority = TextLine(title=_("Authentication authority"),
+                         description=_("Base URL (protocol and hostname) of the authentication "
+                                       "authority to which tokens management requests will be "
+                                       "forwarded"),
+                         required=False)
+
+    get_token_service = HTTPMethodField(title=_("Token getter service"),
+                                        description=_("REST HTTP service used to get a new token"),
+                                        required=False,
+                                        default=('POST', '/api/auth/jwt/token'))
+
+    proxy_access_token_name = TextLine(title=_("Access token attribute"),
+                                       description=_("Name of the JSON attribute returned by "
+                                                     "REST API containing access tokens"),
+                                       required=False,
+                                       default=ACCESS_TOKEN_NAME)
+
+    proxy_refresh_token_name = TextLine(title=_("Refresh token attribute"),
+                                        description=_("Name of the JSON attribute returned by "
+                                                      "REST API containing refresh tokens"),
+                                        required=False,
+                                        default=REFRESH_TOKEN_NAME)
+
+    get_claims_service = HTTPMethodField(title=_("Token claims getter"),
+                                         description=_("REST HTTP service used to extract claims "
+                                                       "from provided authorization token"),
+                                         required=False,
+                                         default=('GET', '/api/auth/jwt/token'))
+
+    refresh_token_service = HTTPMethodField(title=_("Token refresh service"),
+                                            description=_("REST HTTP service used to get a new "
+                                                          "access token with a refresh token"),
+                                            required=False,
+                                            default=('PATCH', '/api/auth/jwt/token'))
+
+    verify_token_service = HTTPMethodField(title=_("Token verify service"),
+                                           description=_("REST HTTP service used to check "
+                                                         "validity of an existing token"),
+                                           required=False,
+                                           default=('POST', '/api/auth/jwt/verify'))
+
+    verify_ssl = Bool(title=_("Verify SSL?"),
+                      description=_("If 'no', SSL certificates will not be verified"),
+                      required=False,
+                      default=True)
+
+    use_cache = Bool(title=_("Use verified tokens cache?"),
+                     description=_("If selected, this option allows to store credentials in a "
+                                   "local cache from which they can be reused"),
+                     required=False,
+                     default=True)
+
+    selected_cache = Choice(title=_("Selected tokens cache"),
+                            description=_("Beaker cache selected to store validated tokens"),
+                            required=False,
+                            vocabulary=BEAKER_CACHES_VOCABULARY,
+                            default='default')
+
     @invariant
     def check_configuration(self):
         """Check for JWT configuration"""
-        if self.enabled:
+        if self.local_mode and self.proxy_mode:
+            raise Invalid(_("You can't enable both local and proxy modes"))
+        if self.local_mode:
             if not self.algorithm:
                 raise Invalid(_("You must choose an algorithm to enable JWT authentication"))
             if self.algorithm.startswith('HS'):  # pylint: disable=no-member
@@ -88,8 +195,13 @@ class IJWTSecurityConfiguration(Interface):
                     raise Invalid(_("You must define JWT secret to use HS256 algorithm"))
             elif self.algorithm.startswith('RS'):  # pylint: disable=no-member
                 if not (self.private_key and self.public_key):
-                    raise Invalid(_("You must define a private and a public key to use RS256 "
-                                    "algorithm"))
+                    raise Invalid(_("You must define a private and a public key to use "
+                                    "RS256 algorithm"))
+        if self.proxy_mode:
+            if not self.authority:
+                raise Invalid(_("You must define authentication authority to use proxy mode"))
+            if self.use_cache and not self.selected_cache:
+                raise Invalid(_("You must choose a cache to enable tokens caching"))
 
 
 class IJWTAuthenticationPlugin(IAuthenticationPlugin):

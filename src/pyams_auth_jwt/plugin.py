@@ -26,7 +26,7 @@ from zope.container.contained import Contained
 from zope.schema.fieldproperty import FieldProperty
 
 from pyams_auth_jwt.interfaces import ACCESS_OBJECT, IJWTAuthenticationPlugin, \
-    IJWTSecurityConfiguration, JWT_CONFIGURATION_KEY
+    IJWTProxyHandler, IJWTSecurityConfiguration, JWT_CONFIGURATION_KEY
 from pyams_security.credential import Credentials
 from pyams_security.interfaces import ICredentialsPlugin, ISecurityManager
 from pyams_utils.adapter import adapter_config, get_annotation_adapter
@@ -37,10 +37,10 @@ from pyams_utils.registry import get_current_registry, query_utility, utility_co
 
 __docformat__ = 'restructuredtext'
 
-from pyams_security import _  # pylint: disable=ungrouped-imports
+from pyams_auth_jwt import _  # pylint: disable=ungrouped-imports
 
 
-LOGGER = logging.getLogger('PyAMS (security)')
+LOGGER = logging.getLogger('PyAMS (JWT security)')
 
 PARSED_CLAIMS_ENVKEY = 'pyams_auth_jwt.claims'
 PARSED_CREDENTIALS_ENVKEY = "pyams_auth_jwt.credentials"
@@ -50,13 +50,31 @@ PARSED_CREDENTIALS_ENVKEY = "pyams_auth_jwt.credentials"
 class JWTSecurityConfiguration(Persistent, Contained):
     """JWT security configuration"""
 
-    enabled = FieldProperty(IJWTSecurityConfiguration['enabled'])
+    local_mode = FieldProperty(IJWTSecurityConfiguration['local_mode'])
     algorithm = FieldProperty(IJWTSecurityConfiguration['algorithm'])
     secret = FieldProperty(IJWTSecurityConfiguration['secret'])
     private_key = FieldProperty(IJWTSecurityConfiguration['private_key'])
     public_key = FieldProperty(IJWTSecurityConfiguration['public_key'])
     access_expiration = FieldProperty(IJWTSecurityConfiguration['access_expiration'])
+    access_token_name = FieldProperty(IJWTSecurityConfiguration['access_token_name'])
     refresh_expiration = FieldProperty(IJWTSecurityConfiguration['refresh_expiration'])
+    refresh_token_name = FieldProperty(IJWTSecurityConfiguration['refresh_token_name'])
+
+    proxy_mode = FieldProperty(IJWTSecurityConfiguration['proxy_mode'])
+    authority = FieldProperty(IJWTSecurityConfiguration['authority'])
+    get_token_service = FieldProperty(IJWTSecurityConfiguration['get_token_service'])
+    proxy_access_token_name = FieldProperty(IJWTSecurityConfiguration['proxy_access_token_name'])
+    get_claims_service = FieldProperty(IJWTSecurityConfiguration['get_claims_service'])
+    refresh_token_service = FieldProperty(IJWTSecurityConfiguration['refresh_token_service'])
+    proxy_refresh_token_name = FieldProperty(IJWTSecurityConfiguration['proxy_refresh_token_name'])
+    verify_token_service = FieldProperty(IJWTSecurityConfiguration['verify_token_service'])
+    verify_ssl = FieldProperty(IJWTSecurityConfiguration['verify_ssl'])
+    use_cache = FieldProperty(IJWTSecurityConfiguration['use_cache'])
+    selected_cache = FieldProperty(IJWTSecurityConfiguration['selected_cache'])
+
+    @property
+    def enabled(self):
+        return self.local_mode or self.proxy_mode
 
 
 @adapter_config(required=ISecurityManager, provides=IJWTSecurityConfiguration)
@@ -71,7 +89,7 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
     """JWT authentication plugin"""
 
     prefix = 'jwt'
-    title = _("JWT authentication credentials")
+    title = _("JWT authentication")
 
     audience = None
     leeway = 0
@@ -146,10 +164,8 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
             token = token.decode('ascii')
         return token
 
-    def get_claims(self, request, obj=None):  # pylint: disable=too-many-return-statements
+    def _get_claims(self, request, obj=None):  # pylint: disable=too-many-return-statements
         """Get JWT claims"""
-        if not self.enabled:
-            return {}
         if self.http_header == 'Authorization':  # pylint: disable=comparison-with-callable
             try:
                 if request.authorization is None:
@@ -183,6 +199,20 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
                            getattr(request, 'remote_addr', '--'), exc)
             return {}
 
+    def get_claims(self, request, obj=None):  # pylint: disable=too-many-return-statements
+        """Get JWT claims"""
+        configuration = self.configuration
+        if configuration is None:
+            return {}
+        if configuration.proxy_mode:
+            handler = IJWTProxyHandler(self)
+            if handler is not None:
+                _status_code, claims = handler.get_claims(request, obj)
+                return claims
+        elif configuration.local_mode:
+            return self._get_claims(request, obj)
+        return {}
+
     def extract_credentials(self, request, **kwargs):  # pylint: disable=unused-argument
         """Extract principal ID from given request"""
         claims = self.get_claims(request, obj=ACCESS_OBJECT)
@@ -201,6 +231,13 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
         """Get unauthenticated user ID"""
         claims = self.get_claims(request, obj=ACCESS_OBJECT)
         return claims.get('sub') if claims else None
+
+
+@adapter_config(required=IJWTAuthenticationPlugin,
+                provides=IJWTSecurityConfiguration)
+def jwt_plugin_configuration_adapter(context):
+    """JWT plugin configuration adapter"""
+    return context.configuration
 
 
 def create_jwt_token(request, principal, expiration=None, audience=None, **claims):

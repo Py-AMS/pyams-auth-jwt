@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE 1.0\n"
-"POT-Creation-Date: 2020-12-29 11:27+0100\n"
+"POT-Creation-Date: 2021-01-01 16:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,117 +11,258 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Lingua 3.10.dev0\n"
 
-#: src/pyams_auth_jwt/plugin.py:74
-msgid "JWT authentication credentials"
+#: src/pyams_auth_jwt/plugin.py:95
+msgid "JWT authentication"
 msgstr "Authentification JWT"
 
-#: src/pyams_auth_jwt/interfaces.py:46
-msgid "Enable JWT login?"
-msgstr "Activer l'authentification JWT ?"
+#: src/pyams_auth_jwt/interfaces.py:73 src/pyams_auth_jwt/interfaces.py:138
+msgid "Access token attribute"
+msgstr "Nom du token d'accès"
 
-#: src/pyams_auth_jwt/interfaces.py:47
-msgid "Enable login via JWT authentication"
-msgstr "Activer la connexion via une authentification par tokens JWT"
+#: src/pyams_auth_jwt/interfaces.py:74
+msgid ""
+"Name of the JSON attribute containing access token returned by REST APIs"
+msgstr ""
+"Nom de l'attribut JSON retourné par l'API REST contenant les tokens d'accès"
 
-#: src/pyams_auth_jwt/interfaces.py:51
+#: src/pyams_auth_jwt/interfaces.py:79 src/pyams_auth_jwt/interfaces.py:144
+msgid "Refresh token attribute"
+msgstr "Nom du jeton de rafraîchissement"
+
+#: src/pyams_auth_jwt/interfaces.py:80
+msgid ""
+"Name of the JSON attribute containing refresh token returned by REST APIs"
+msgstr ""
+"Nom de l'attribut JSON retourné par l'API REST contenant les tokens de "
+"rafraîchissement"
+
+#: src/pyams_auth_jwt/interfaces.py:87
+msgid "Enable JWT direct authentication?"
+msgstr "Activer le mode \"local\" ?"
+
+#: src/pyams_auth_jwt/interfaces.py:88
+msgid "Enable direct login via JWT authentication"
+msgstr "Activer la gestion en local des tokens JWT"
+
+#: src/pyams_auth_jwt/interfaces.py:92
 msgid "JWT encoding algorithm"
 msgstr "Algorithme d'encryptage"
 
-#: src/pyams_auth_jwt/interfaces.py:52
+#: src/pyams_auth_jwt/interfaces.py:93
 msgid ""
 "HS* protocols are using the secret, while RS* protocols are using RSA keys"
 msgstr ""
 "Les protocoles de type HS utilisent le code secret, tandis que les "
 "protocoles de types RS utilisent les clés RSA"
 
-#: src/pyams_auth_jwt/interfaces.py:58
+#: src/pyams_auth_jwt/interfaces.py:99
 msgid "JWT secret"
 msgstr "Code secret"
 
-#: src/pyams_auth_jwt/interfaces.py:59
+#: src/pyams_auth_jwt/interfaces.py:100
 msgid "This secret is required when using HS* encryption"
 msgstr ""
 "Ce code secret est nécessaire si vous utilisez un encryptage de type HS*"
 
-#: src/pyams_auth_jwt/interfaces.py:62
+#: src/pyams_auth_jwt/interfaces.py:103
 msgid "JWT private key"
 msgstr "Clé privée"
 
-#: src/pyams_auth_jwt/interfaces.py:63
+#: src/pyams_auth_jwt/interfaces.py:104
 msgid "The secret key is required when using RS* algorithm"
 msgstr "Une clé privée est nécessaire pour utiliser un encryptage de type RS*"
 
-#: src/pyams_auth_jwt/interfaces.py:66
+#: src/pyams_auth_jwt/interfaces.py:107
 msgid "JWT public key"
 msgstr "Clé publique"
 
-#: src/pyams_auth_jwt/interfaces.py:67
+#: src/pyams_auth_jwt/interfaces.py:108
 msgid "The public key is required when using RS* algorithm"
 msgstr ""
 "Une clé publique est nécessaire pour utiliser un encryptage de type RS*"
 
-#: src/pyams_auth_jwt/interfaces.py:70
+#: src/pyams_auth_jwt/interfaces.py:111
 msgid "Access token lifetime"
 msgstr "Durée de vie des tokens d'accès"
 
-#: src/pyams_auth_jwt/interfaces.py:71
+#: src/pyams_auth_jwt/interfaces.py:112
 msgid "JWT access token lifetime, in seconds"
 msgstr "Durée de vie des tokens d'accès JWT, en secondes"
 
-#: src/pyams_auth_jwt/interfaces.py:75
+#: src/pyams_auth_jwt/interfaces.py:116
 msgid "Refresh token lifetime"
 msgstr "Durée de vie des tokens de refresh"
 
-#: src/pyams_auth_jwt/interfaces.py:76
+#: src/pyams_auth_jwt/interfaces.py:117
 msgid "JWT refresh token lifetime, in seconds"
 msgstr "Durée de vie des tokens de rafraîchissement, en secondes"
 
-#: src/pyams_auth_jwt/interfaces.py:85
+#: src/pyams_auth_jwt/interfaces.py:121
+msgid "Enable JWT proxy authentication?"
+msgstr "Activer le mode \"proxy\" ?"
+
+#: src/pyams_auth_jwt/interfaces.py:122
+msgid ""
+"If this option is enabled, tokens management requests will be forwarded to "
+"another authentication authority"
+msgstr ""
+"Si cette option est activée, la gestion des tokens JWT est déléguée à une "
+"autre autorité d'authentification"
+
+#: src/pyams_auth_jwt/interfaces.py:127
+msgid "Authentication authority"
+msgstr "Autorité d'authentification"
+
+#: src/pyams_auth_jwt/interfaces.py:128
+msgid ""
+"Base URL (protocol and hostname) of the authentication authority to which "
+"tokens management requests will be forwarded"
+msgstr ""
+"URL de base (protocole et nom d'hôte) de l'autorité d'authentification à "
+"laquelle est déléguée la gestion des tokens"
+
+#: src/pyams_auth_jwt/interfaces.py:133
+msgid "Token getter service"
+msgstr "Service d'obtention"
+
+#: src/pyams_auth_jwt/interfaces.py:134
+msgid "REST HTTP service used to get a new token"
+msgstr ""
+"URL relative du service REST permettant de récupérer de nouveaux jetons JWT "
+"à partir d'un login et d'un mot de passe"
+
+#: src/pyams_auth_jwt/interfaces.py:139
+msgid ""
+"Name of the JSON attribute returned by REST API containing access tokens"
+msgstr ""
+"Nom de l'attribut JSON retourné par l'API REST contenant les tokens d'accès"
+
+#: src/pyams_auth_jwt/interfaces.py:145
+msgid ""
+"Name of the JSON attribute returned by REST API containing refresh tokens"
+msgstr ""
+"Nom de l'attribut JSON retourné par l'API REST contenant les tokens de "
+"rafraîchissement"
+
+#: src/pyams_auth_jwt/interfaces.py:150
+msgid "Token claims getter"
+msgstr "Service de consultation"
+
+#: src/pyams_auth_jwt/interfaces.py:151
+msgid ""
+"REST HTTP service used to extract claims from provided authorization token"
+msgstr ""
+"URL relative du service REST permettant d'extraire les \"réclamations"
+"\" (claims) des jetons JWT"
+
+#: src/pyams_auth_jwt/interfaces.py:156
+msgid "Token refresh service"
+msgstr "Service de rafraîchissement"
+
+#: src/pyams_auth_jwt/interfaces.py:157
+msgid "REST HTTP service used to get a new access token with a refresh token"
+msgstr ""
+"URL relative du service REST permettant de récupérer un nouveau token "
+"d'accès à partir d'un token de rafraîchissement"
+
+#: src/pyams_auth_jwt/interfaces.py:162
+msgid "Token verify service"
+msgstr "Service de vérification"
+
+#: src/pyams_auth_jwt/interfaces.py:163
+msgid "REST HTTP service used to check validity of an existing token"
+msgstr ""
+"URL relative du service REST permettant de vérifier la validité d'un jeton"
+
+#: src/pyams_auth_jwt/interfaces.py:168
+msgid "Verify SSL?"
+msgstr "Vérification SSL ?"
+
+#: src/pyams_auth_jwt/interfaces.py:169
+msgid "If 'no', SSL certificates will not be verified"
+msgstr "Si 'non', les certificats SSL ne seront pas vérifiés"
+
+#: src/pyams_auth_jwt/interfaces.py:173
+msgid "Use verified tokens cache?"
+msgstr "Mettre les jetons en cache ?"
+
+#: src/pyams_auth_jwt/interfaces.py:174
+msgid ""
+"If selected, this option allows to store credentials in a local cache from "
+"which they can be reused"
+msgstr ""
+"En sélectionnant cette option, les jetons validés seront mis en cache, de "
+"façon à limiter les requêtes auprès de l'autorité d'authentification"
+
+#: src/pyams_auth_jwt/interfaces.py:179
+msgid "Selected tokens cache"
+msgstr "Cache de jetons"
+
+#: src/pyams_auth_jwt/interfaces.py:180
+msgid "Beaker cache selected to store validated tokens"
+msgstr "Cache pré-défini dans lequel seront stockés les jetons"
+
+#: src/pyams_auth_jwt/interfaces.py:189
+msgid "You can't enable both local and proxy modes"
+msgstr ""
+"Vous ne pouvez pas activer le mode local et le mode proxy en même temps !"
+
+#: src/pyams_auth_jwt/interfaces.py:192
 msgid "You must choose an algorithm to enable JWT authentication"
 msgstr ""
 "Vous devez sélectionner un algorithme d'encryptage pour activer "
 "l'authentification JWT"
 
-#: src/pyams_auth_jwt/interfaces.py:88
+#: src/pyams_auth_jwt/interfaces.py:202
+msgid "You must define authentication authority to use proxy mode"
+msgstr ""
+"Vous devez indiquer l'autorité d'authentification pour utiliser le mode "
+"proxy !"
+
+#: src/pyams_auth_jwt/interfaces.py:204
+msgid "You must choose a cache to enable tokens caching"
+msgstr ""
+"Vous devez sélectionner un cache pour activer la mise en cache des jetons"
+
+#: src/pyams_auth_jwt/interfaces.py:195
 msgid "You must define JWT secret to use HS256 algorithm"
 msgstr ""
 "Vous devez définir un code secret pour utiliser un encryptage de type HS*"
 
-#: src/pyams_auth_jwt/interfaces.py:91
+#: src/pyams_auth_jwt/interfaces.py:198
 msgid "You must define a private and a public key to use RS256 algorithm"
 msgstr ""
 "Vous devez définir une clé privée et une clé publique pour utiliser un "
 "encryptage de type RS*"
 
-#: src/pyams_auth_jwt/api/__init__.py:71
+#: src/pyams_auth_jwt/api/__init__.py:81
 msgid "Invalid credentials!"
 msgstr "Paramètres de connexion invalides !"
 
-#: src/pyams_auth_jwt/zmi/plugin.py:51 src/pyams_auth_jwt/zmi/plugin.py:61
+#: src/pyams_auth_jwt/zmi/plugin.py:54 src/pyams_auth_jwt/zmi/plugin.py:64
 msgid "JWT configuration"
 msgstr "Configuration JWT"
 
-#: src/pyams_auth_jwt/zmi/plugin.py:60
+#: src/pyams_auth_jwt/zmi/plugin.py:63
 msgid "Security manager"
 msgstr "Gestionnaire de sécurité"
 
-#: src/pyams_auth_jwt/zmi/plugin.py:99
+#: src/pyams_auth_jwt/zmi/plugin.py:113
 msgid ""
-"JWT authentication module provides features and a REST API which can be used "
-"to generate, refresh and verify access tokens.\n"
+"JWT authentication module \"local mode\" allows to generate, check and "
+"refresh tokens locally.\n"
 "You can choose to use a simple secret key to encrypt your tokens, or to use "
-"a private and a public keys (which can to be used to share tokens between "
-"two applications)\n"
+"a private and public keys pair (which can to be used to share tokens between "
+"two applications)."
 msgstr ""
-"Le module d'authentification JWT fournit des fonctionnalités ainsi qu'une "
-"API REST qui peuvent être utilisées pour générer, rafraîchir et vérifier des "
-"jetons JWT.\n"
+"Le mode \"local\" du module d'authentification JWT permet de générer, "
+"vérifier et rafraîchir les jetons JWT localement.\n"
 "Vous pouvez utiliser un simple secret pour encrypter les tokens, ou utiliser "
 "un couple de clés publique et privée (qui peuvent notamment être utilisées "
 "pour partager des jetons entre plusieurs applications qui peuvent s'appuyer "
-"sur une autorité d'authentification commune).\n"
+"sur une autorité d'authentification commune)."
 
-#: src/pyams_auth_jwt/zmi/plugin.py:113
+#: src/pyams_auth_jwt/zmi/plugin.py:126
 msgid ""
 "You can use the `openssl` command to generate your keys:\n"
 "\n"
@@ -132,6 +273,27 @@ msgstr ""
 "\n"
 "         openssl genpkey -algorithm RSA -out private-key.pem\n"
 "         openssl rsa -pubout -in private-key.pem -out public-key.pem\n"
+
+#: src/pyams_auth_jwt/zmi/plugin.py:161
+msgid ""
+"JWT authentication module \"proxy mode\" relies on another authentication "
+"authority (which can be another application using this JWT package) to "
+"generate, check and refresh tokens. This authority can be used to share "
+"access tokens between different applications.\n"
+"You can cache tokens to reduce the number of requests which will be "
+"forwarded to the authentication authority."
+msgstr ""
+"Le mode \"proxy\" du module d'authentification JWT s'appuie sur une autre "
+"autorité d'authentification (qui peut être une autre application utilisant "
+"le même package JWT en mode local) pour générer, vérifier et rafraîchir les "
+"jetons JWT, via la même API REST. Cette autorité peut par ailleurs être "
+"utilisée par différentes applications pour partager des jetons.\n"
+"Vous pouvez également choisir d'activer un cache dans lequel seront stockés "
+"les jetons validés, afin de limiter le nombre de requêtes transmises à "
+"l'autorité d'authentification."
+
+#~ msgid "Enable JWT login?"
+#~ msgstr "Activer l'authentification JWT ?"
 
 #~ msgid "Send cookie?"
 #~ msgstr "Envoyer un cookie ?"

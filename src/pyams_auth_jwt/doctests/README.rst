@@ -17,6 +17,12 @@ credentials from matching "Authorization headers:
     >>> config = setUp(hook_zca=True)
     >>> config.registry.settings['zodbconn.uri'] = 'memory://'
 
+    >>> from beaker.cache import CacheManager, cache_regions
+    >>> cache = CacheManager(**{'cache.type': 'memory'})
+    >>> cache_regions.update({'short': {'type': 'memory', 'expire': 10}})
+    >>> cache_regions.update({'default': {'type': 'memory', 'expire': 60}})
+    >>> cache_regions.update({'long': {'type': 'memory', 'expire': 600}})
+
     >>> from pyramid_zodbconn import includeme as include_zodbconn
     >>> include_zodbconn(config)
     >>> from cornice import includeme as include_cornice
@@ -92,7 +98,7 @@ You have to set several security manager properties to use JWT:
 
     >>> jwt_configuration = IJWTSecurityConfiguration(sm)
     >>> jwt_configuration.secret = ''
-    >>> jwt_configuration.enabled = True
+    >>> jwt_configuration.local_mode = True
 
     >>> plugin.enabled
     True
@@ -150,11 +156,6 @@ This error is normal, because the user doesn't actually exist! So let's create i
      'status': 'success'}
 
 Let's now try to use this token; this requires a Beaker cache:
-
-    >>> from beaker.cache import CacheManager, cache_regions
-    >>> cache = CacheManager(**{'cache.type': 'memory'})
-    >>> cache_regions.update({'short': {'type': 'memory', 'expire': 0}})
-    >>> cache_regions.update({'long': {'type': 'memory', 'expire': 0}})
 
     >>> jwt_request = DummyRequest(authorization=('Bearer', jwt_result['accessToken']))
     >>> jwt_request.unauthenticated_userid
@@ -259,6 +260,15 @@ Let's try to use another JWT configuration:
      'refreshToken': 'eyJ...',
      'status': 'success'}
 
+    >>> jwt_request = DummyRequest(authorization=('Bearer', jwt_result['accessToken']))
+    >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> pprint.pprint(jwt_request.get_jwt_claims())
+    {'aud': 'app:app1',
+     'exp': ...,
+     'iat': ...,
+     'obj': 'access',
+     'sub': 'users:user1'}
+
 We are also going to change the token authorization type:
 
     >>> config.registry.settings['pyams.jwt.auth_type'] = 'JWT'
@@ -307,7 +317,7 @@ We can also change the HTTP header used to get JWT token:
 
 Disabling the JWT configuration always return empty results:
 
-    >>> jwt_configuration.enabled = False
+    >>> jwt_configuration.local_mode = False
     >>> jwt_request.unauthenticated_userid is None
     True
 
@@ -333,7 +343,7 @@ Testing plugin API
 We first have to get JWT tokens; let's reactivate our plug-in:
 
     >>> config.registry.settings['pyams.jwt.auth_type'] = 'Bearer'
-    >>> jwt_configuration.enabled = True
+    >>> jwt_configuration.local_mode = True
 
     >>> jwt_request = DummyRequest(method='PATCH', path='/api/auth/jwt/token')
     >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
@@ -374,6 +384,16 @@ We can now try to get a new access token, using the previous refresh token:
      'exp': ...,
      'iat': ...,
      'obj': 'access',
+     'sub': 'users:user1'}
+
+We can also get claims from a given token:
+
+    >>> from pyams_auth_jwt.api import get_jwt_claims
+    >>> pprint.pprint(get_jwt_claims(jwt_request))
+    {'aud': 'app:app1',
+     'exp': ...,
+     'iat': ...,
+     'obj': 'refresh',
      'sub': 'users:user1'}
 
 We can always try o refresh a token without providing any access token:
@@ -438,6 +458,98 @@ PyAMS JWT plug-in actually provides two tokens objects, which are "access" and "
     >>> jwt_refresh.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
     >>> predicate(None, jwt_refresh)
     False
+
+
+JWT plugin proxy mode
+---------------------
+
+Let's try to see how proxy mode is supported:
+
+    >>> jwt_configuration.proxy_mode = True
+    >>> IJWTSecurityConfiguration.validateInvariants(jwt_configuration)
+    Traceback (most recent call last):
+    ...
+    zope.interface.exceptions.Invalid: You can't enable both local and proxy modes
+
+You can't use both local and proxy mode!
+
+    >>> jwt_configuration.local_mode = False
+    >>> jwt_configuration.proxy_mode = True
+    >>> IJWTSecurityConfiguration.validateInvariants(jwt_configuration)
+    Traceback (most recent call last):
+    ...
+    zope.interface.exceptions.Invalid: You must define authentication authority to use proxy mode
+
+Yes, we now have to configure our authentication authentication authority:
+
+    >>> jwt_configuration.authority = 'http://localhost'
+
+We are going to create mocks to simulate authority answers:
+
+    >>> from unittest.mock import MagicMock
+    >>> import requests
+
+    >>> class GetTokenResponse:
+    ...     status_code = 200
+    ...     def json(self):
+    ...         return {
+    ...             'accessToken': jwt_result['accessToken'],
+    ...             'refreshToken': jwt_result['refreshToken'],
+    ...             'status': 'success'
+    ...         }
+    >>> requests.request = MagicMock(return_value=GetTokenResponse())
+
+    >>> jwt_request = DummyRequest(method='POST', path='/api/auth/jwt/token',
+    ...                            params={'login': 'user1', 'password': 'passwd'})
+    >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
+    >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> jwt_proxy_result = get_jwt_token(jwt_request)
+    >>> pprint.pprint(jwt_proxy_result)
+    {'accessToken': 'eyJ...',
+     'refreshToken': 'eyJ...',
+     'status': 'success'}
+
+Let's check claims from generated token:
+
+    >>> class GetClaimsResponse:
+    ...     status_code = 200
+    ...     def json(self):
+    ...         return {
+    ...             'aud': 'app:app1',
+    ...             'exp': '...',
+    ...             'iat': '...',
+    ...             'obj': 'access',
+    ...             'sub': 'users:user1'
+    ...         }
+    >>> requests.request = MagicMock(return_value=GetClaimsResponse())
+
+    >>> jwt_proxy_claims = DummyRequest(authorization=('Bearer', jwt_proxy_result['accessToken']))
+    >>> jwt_proxy_claims.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_proxy_claims, *args, **kwargs)
+    >>> jwt_claims_result = get_jwt_claims(jwt_proxy_claims)
+    >>> pprint.pprint(jwt_claims_result)
+    {'aud': 'app:app1',
+     'exp': '...',
+     'iat': '...',
+     'obj': 'access',
+     'sub': 'users:user1'}
+
+Let's now refresh our access token:
+
+    >>> class GetRefreshResponse:
+    ...     status_code = 200
+    ...     def json(self):
+    ...         return {
+    ...             'accessToken': jwt_result['accessToken'],
+    ...             'status': 'success'
+    ...         }
+    >>> requests.request = MagicMock(return_value=GetRefreshResponse())
+
+    >>> jwt_refresh = DummyRequest(authorization=('Bearer', jwt_proxy_result['refreshToken']))
+    >>> jwt_refresh.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
+    >>> jwt_refresh_result = refresh_jwt_token(jwt_refresh)
+    >>> pprint.pprint(jwt_refresh_result)
+    {'accessToken': 'eyJ...',
+     'status': 'success'}
 
 
 Tests cleanup:
