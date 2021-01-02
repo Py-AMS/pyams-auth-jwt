@@ -56,7 +56,7 @@ def get_jwt_token(request):
     if configuration.proxy_mode:
         handler = IJWTProxyHandler(sm, None)
         if handler is not None:
-            status_code, tokens = handler.get_tokens(request, credentials)
+            status_code, tokens = handler.get_tokens(request, credentials)  # pylint: disable=assignment-from-no-return
             request.response.status_code = status_code
             return tokens
     # authenticate principal in security manager
@@ -95,7 +95,7 @@ def get_jwt_claims(request):
     if configuration.proxy_mode:
         handler = IJWTProxyHandler(sm, None)
         if handler is not None:
-            status_code, claims = handler.get_claims(request, obj)
+            status_code, claims = handler.get_claims(request, obj)  # pylint: disable=assignment-from-no-return
             request.response.status_code = status_code
             return claims
     return get_request_claims(request, obj)
@@ -104,7 +104,7 @@ def get_jwt_claims(request):
 @jwt_token.patch(require_csrf=False, jwt_object=REFRESH_OBJECT)
 def refresh_jwt_token(request):
     """JWT token refresh view"""
-    sm = query_utility(ISecurityManager)
+    sm = query_utility(ISecurityManager)  # pylint: disable=invalid-name
     if sm is None:
         raise HTTPServiceUnavailable()
     configuration = IJWTSecurityConfiguration(sm)
@@ -114,7 +114,7 @@ def refresh_jwt_token(request):
     if configuration.proxy_mode:
         handler = IJWTProxyHandler(sm, None)
         if handler is not None:
-            status_code, token = handler.refresh_token(request)
+            status_code, token = handler.refresh_token(request)  # pylint: disable=assignment-from-no-return
             request.response.status_code = status_code
             return token
     # refresh token locally

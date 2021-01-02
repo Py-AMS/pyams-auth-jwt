@@ -70,7 +70,7 @@ class JWTProxyHandler(ContextAdapter):
                 return HTTPOk.code, claims
 
         # Call authority REST API
-        method, service = configuration.get_claims_service
+        method, service = configuration.get_claims_service  # pylint: disable=unpacking-non-sequence
         rest_service = '{}{}'.format(configuration.authority, service)
         params = {}
         data = {}
@@ -83,7 +83,7 @@ class JWTProxyHandler(ContextAdapter):
                                         params=params, data=data,
                                         headers={'Authorization': authorization})
         status_code = rest_request.status_code
-        if status_code == requests.codes.ok:
+        if status_code == requests.codes.ok:  # pylint: disable=no-member
             claims = rest_request.json()
             if tokens_cache is not None:
                 tokens_cache.set_value(cache_key, claims)
@@ -93,7 +93,7 @@ class JWTProxyHandler(ContextAdapter):
     def get_tokens(self, request, credentials):  # pylint: disable=unused-argument
         """Get new tokens from authentication authority"""
         configuration = IJWTSecurityConfiguration(self.context)
-        method, service = configuration.get_token_service
+        method, service = configuration.get_token_service  # pylint: disable=unpacking-non-sequence
         rest_service = '{}{}'.format(configuration.authority, service)
         if method == 'GET':
             rest_request = requests.request(method, rest_service,
@@ -106,7 +106,7 @@ class JWTProxyHandler(ContextAdapter):
                                             allow_redirects=False,
                                             verify=configuration.verify_ssl)
         status_code = rest_request.status_code
-        if status_code == requests.codes.ok:
+        if status_code == requests.codes.ok:  # pylint: disable=no-member
             result = rest_request.json()
             result[configuration.access_token_name] = \
                 result.pop(configuration.proxy_access_token_name)
@@ -118,13 +118,13 @@ class JWTProxyHandler(ContextAdapter):
     def refresh_token(self, request):
         """Get new access token with refresh token authorization"""
         configuration = IJWTSecurityConfiguration(self.context)
-        method, service = configuration.refresh_token_service
+        method, service = configuration.refresh_token_service  # pylint: disable=unpacking-non-sequence
         rest_service = '{}{}'.format(configuration.authority, service)
         rest_request = requests.request(method, rest_service, headers={
             'Authorization': request.headers.get('Authorization')
         })
         status_code = rest_request.status_code
-        if status_code == requests.codes.ok:
+        if status_code == requests.codes.ok:  # pylint: disable=no-member
             result = rest_request.json()
             result[configuration.access_token_name] = \
                 result.pop(configuration.proxy_access_token_name)

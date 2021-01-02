@@ -15,14 +15,12 @@
 This module is used to register ZMI views used to manage JWT configuration.
 """
 
-from zope.interface import Interface
-
 from pyams_auth_jwt.interfaces import IJWTSecurityConfiguration, JWT_PROXY_CACHE_NAME, \
     JWT_PROXY_TOKENS_NAMESPACE
 from pyams_form.ajax import ajax_form_config
 from pyams_form.browser.checkbox import SingleCheckBoxFieldWidget
 from pyams_form.field import Fields
-from pyams_form.interfaces.form import IAJAXFormRenderer, IGroup
+from pyams_form.interfaces.form import IGroup
 from pyams_layer.interfaces import IPyAMSLayer
 from pyams_security.interfaces import ISecurityManager
 from pyams_security.interfaces.base import MANAGE_SECURITY_PERMISSION
@@ -30,7 +28,7 @@ from pyams_security_views.zmi import ISecurityMenu
 from pyams_site.interfaces import ISiteRoot
 from pyams_skin.interfaces.viewlet import IHeaderViewletManager
 from pyams_skin.viewlet.help import AlertMessage
-from pyams_utils.adapter import ContextRequestViewAdapter, adapter_config
+from pyams_utils.adapter import adapter_config
 from pyams_utils.cache import clear_cache
 from pyams_utils.registry import get_utility
 from pyams_viewlet.viewlet import viewlet_config
@@ -140,7 +138,7 @@ class JWTProxyConfigurationGroup(FormGroupChecker):
     fields = Fields(IJWTSecurityConfiguration).select(
         'proxy_mode', 'authority', 'get_token_service', 'proxy_access_token_name',
         'proxy_refresh_token_name', 'get_claims_service', 'refresh_token_service',
-        'verify_token_service',  'verify_ssl')
+        'verify_token_service', 'verify_ssl')
     fields['verify_ssl'].widget_factory = SingleCheckBoxFieldWidget
 
     weight = 20

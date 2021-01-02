@@ -74,6 +74,7 @@ class JWTSecurityConfiguration(Persistent, Contained):
 
     @property
     def enabled(self):
+        """Check if configuration is enabled"""
         return self.local_mode or self.proxy_mode
 
 
@@ -207,7 +208,7 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
         if configuration.proxy_mode:
             handler = IJWTProxyHandler(self)
             if handler is not None:
-                _status_code, claims = handler.get_claims(request, obj)
+                _status_code, claims = handler.get_claims(request, obj)  # pylint: disable=assignment-from-no-return
                 return claims
         elif configuration.local_mode:
             return self._get_claims(request, obj)
