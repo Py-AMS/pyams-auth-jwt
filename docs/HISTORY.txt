@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.2.0
+-----
+ - added support for "proxy" mode, where JWT tokens management is delegated to another
+   authentication authority
+
 1.1.2
 -----
  - updated french translation
