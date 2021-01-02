@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.2.2
+-----
+ - Pylint cleanup
+
+1.2.1
+-----
+ - updated package requirements
+
 1.2.0
 -----
  - added support for "proxy" mode, where JWT tokens management is delegated to another
