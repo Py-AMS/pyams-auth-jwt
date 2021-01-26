@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.2.3
+-----
+ - updated Gitlab-CI configuration
+ - removed Travis-CI configuration
+
 1.2.2
 -----
  - Pylint cleanup
