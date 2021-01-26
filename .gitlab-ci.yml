@@ -21,8 +21,8 @@ before_script:
 bootstrap:
     stage: .pre
     script:
-        - python3.5 bootstrap.py
-        - ./bin/buildout
+        - pip install pip==20.3.4 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - buildout
 
 test-3.5:
     stage: test
@@ -75,7 +75,8 @@ coverage:
 build-3.5:
     stage: build
     script:
-        - ./bin/buildout setup setup.py clean --all sdist bdist_egg bdist_wheel
+        - pip install pip==20.3.4 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - buildout setup setup.py clean --all sdist bdist_egg bdist_wheel
     artifacts:
         paths:
             - ./dist
@@ -102,10 +103,10 @@ dist-3.6:
     stage: dist
     image: python:3.6
     script:
-        - python3.6 bootstrap.py
-        - ./bin/buildout
+        - pip install pip==20.3.4 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - buildout
         - ./bin/test
-        - ./bin/buildout setup setup.py bdist_egg
+        - buildout setup setup.py bdist_egg
         - pip install twine
         - twine upload dist/*
     variables:
@@ -122,10 +123,10 @@ dist-3.7:
     stage: dist
     image: python:3.7
     script:
-        - python3.7 bootstrap.py
-        - ./bin/buildout
+        - pip install pip==20.3.4 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - buildout
         - ./bin/test
-        - ./bin/buildout setup setup.py bdist_egg
+        - buildout setup setup.py bdist_egg
         - pip install twine
         - twine upload dist/*
     variables:
@@ -142,10 +143,10 @@ dist-3.8:
     stage: dist
     image: python:3.8
     script:
-        - python3.8 bootstrap.py
-        - ./bin/buildout
+        - pip install pip==20.3.4 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - buildout
         - ./bin/test
-        - ./bin/buildout setup setup.py bdist_egg
+        - buildout setup setup.py bdist_egg
         - pip install twine
         - twine upload dist/*
     variables:
@@ -162,10 +163,10 @@ dist-3.9:
     stage: dist
     image: python:3.9
     script:
-        - python3.9 bootstrap.py
-        - ./bin/buildout
+        - pip install pip==20.3.4 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - buildout
         - ./bin/test
-        - ./bin/buildout setup setup.py bdist_egg
+        - buildout setup setup.py bdist_egg
         - pip install twine
         - twine upload dist/*
     variables:
