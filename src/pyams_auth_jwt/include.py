@@ -17,6 +17,7 @@ This module is used for Pyramid integration.
 
 import jwt
 
+from pyams_auth_jwt.interfaces import REST_TOKEN_ROUTE, REST_VERIFY_ROUTE
 from pyams_auth_jwt.plugin import JWTTokenObjectPredicate, create_jwt_token, get_jwt_claims
 
 
@@ -35,6 +36,14 @@ def include_package(config):
 
     # add route predicate
     config.add_view_predicate('jwt_object', JWTTokenObjectPredicate)
+
+    # register new REST API routes
+    config.add_route(REST_TOKEN_ROUTE,
+                     config.registry.settings.get('pyams.jwt.rest_token_route',
+                                                  '/api/auth/jwt/token'))
+    config.add_route(REST_VERIFY_ROUTE,
+                     config.registry.settings.get('pyams.jwt.rest_verify_route',
+                                                  '/api/auth/jwt/verify'))
 
     # update JWT algorithms
     try:

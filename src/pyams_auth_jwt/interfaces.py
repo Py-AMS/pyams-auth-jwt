@@ -29,6 +29,14 @@ from pyams_auth_jwt import _
 
 
 #
+# API endpoints
+#
+
+REST_TOKEN_ROUTE = 'jwt.rest.token'
+REST_VERIFY_ROUTE = 'jwt.rest.verify'
+
+
+#
 # JWT authentication utility interface
 #
 
