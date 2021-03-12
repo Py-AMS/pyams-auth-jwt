@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.3.0
+-----
+ - removed support for Python < 3.5
+ - use Colander schemas in JWT REST API
+
 1.2.3
 -----
  - updated Gitlab-CI configuration
