@@ -1,4 +1,4 @@
-image: python:3.5
+image: python:3.7
 
 stages:
     - test
@@ -21,10 +21,10 @@ before_script:
 bootstrap:
     stage: .pre
     script:
-        - pip install pip==20.3.4 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - pip install pip==21.0.1 setuptools==50.3.2 zc.buildout zc.recipe.egg
         - buildout
 
-test-3.5:
+test-3.7:
     stage: test
     script:
         - pip install anybadge coverage
@@ -46,7 +46,7 @@ pylint:
     script:
         - pip install pylint-exit anybadge
         - mkdir ./pylint
-        - ./bin/pylint src/pyams_auth_jwt/ | tee ./pylint/pylint.log || pylint-exit $?
+        - ./bin/pylint src/pyams_utils/ | tee ./pylint/pylint.log || pylint-exit $?
         - PYLINT_SCORE=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' ./pylint/pylint.log)
         - anybadge --label=Pylint --file=./pylint/pylint.svg --value=$PYLINT_SCORE pylint
         - echo "Pylint score is $PYLINT_SCORE"
@@ -72,10 +72,10 @@ coverage:
         variables:
             - $CODE_COVERAGE_DISABLED
 
-build-3.5:
+build-3.7:
     stage: build
     script:
-        - pip install pip==20.3.4 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - pip install pip==21.0.1 setuptools==50.3.2 zc.buildout zc.recipe.egg
         - buildout setup setup.py clean --all sdist bdist_egg bdist_wheel
     artifacts:
         paths:
@@ -84,51 +84,16 @@ build-3.5:
         refs:
             - tags
 
-dist-3.5:
-    stage: dist
-    script:
-        - pip install twine
-        - twine upload dist/*
-    variables:
-        TWINE_USERNAME: $PYPI_USERNAME
-        TWINE_PASSWORD: $PYPI_PASSWORD
-    only:
-        refs:
-            - tags
-    except:
-        variables:
-            - $PYPI_UPLOAD_DISABLED
-
-dist-3.6:
-    stage: dist
-    image: python:3.6
-    script:
-        - pip install pip==20.3.4 setuptools==50.3.2 zc.buildout zc.recipe.egg
-        - buildout
-        - ./bin/test
-        - buildout setup setup.py bdist_egg
-        - pip install twine
-        - twine upload dist/*
-    variables:
-        TWINE_USERNAME: $PYPI_USERNAME
-        TWINE_PASSWORD: $PYPI_PASSWORD
-    only:
-        refs:
-            - tags
-    except:
-        variables:
-            - $PYPI_UPLOAD_DISABLED
-
 dist-3.7:
     stage: dist
     image: python:3.7
     script:
-        - pip install pip==20.3.4 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - pip install pip==21.0.1 setuptools==50.3.2 zc.buildout zc.recipe.egg
         - buildout
         - ./bin/test
         - buildout setup setup.py bdist_egg
         - pip install twine
-        - twine upload dist/*
+        - twine upload --skip-existing dist/*
     variables:
         TWINE_USERNAME: $PYPI_USERNAME
         TWINE_PASSWORD: $PYPI_PASSWORD
@@ -143,12 +108,12 @@ dist-3.8:
     stage: dist
     image: python:3.8
     script:
-        - pip install pip==20.3.4 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - pip install pip==21.0.1 setuptools==50.3.2 zc.buildout zc.recipe.egg
         - buildout
         - ./bin/test
         - buildout setup setup.py bdist_egg
         - pip install twine
-        - twine upload dist/*
+        - twine upload --skip-existing dist/*
     variables:
         TWINE_USERNAME: $PYPI_USERNAME
         TWINE_PASSWORD: $PYPI_PASSWORD
@@ -163,12 +128,12 @@ dist-3.9:
     stage: dist
     image: python:3.9
     script:
-        - pip install pip==20.3.4 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - pip install pip==21.0.1 setuptools==50.3.2 zc.buildout zc.recipe.egg
         - buildout
         - ./bin/test
         - buildout setup setup.py bdist_egg
         - pip install twine
-        - twine upload dist/*
+        - twine upload --skip-existing dist/*
     variables:
         TWINE_USERNAME: $PYPI_USERNAME
         TWINE_PASSWORD: $PYPI_PASSWORD
