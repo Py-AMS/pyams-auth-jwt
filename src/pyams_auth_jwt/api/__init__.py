@@ -22,6 +22,7 @@ from cornice import Service
 from cornice.validators import colander_body_validator
 from pyramid.httpexceptions import HTTPAccepted, HTTPBadRequest, HTTPForbidden, \
     HTTPNotFound, HTTPOk, HTTPServiceUnavailable, HTTPUnauthorized
+from pyramid.security import Authenticated
 
 from pyams_auth_jwt.interfaces import ACCESS_OBJECT, IJWTProxyHandler, \
     IJWTSecurityConfiguration, REFRESH_OBJECT, REST_TOKEN_ROUTE, REST_VERIFY_ROUTE
@@ -240,6 +241,36 @@ def refresh_jwt_token(request):
 jwt_verify = Service(name=REST_VERIFY_ROUTE,
                      pyramid_route=REST_VERIFY_ROUTE,
                      description="JWT tokens verification")
+
+
+@jwt_verify.get(require_csrf=False,
+                schema=ClaimsObjectSchema(),
+                **service_params)
+def get_current_jwt_token(request):
+    """Get current JWT token for authenticated principal"""
+    manager = query_utility(ISecurityManager)
+    if manager is None:
+        raise HTTPServiceUnavailable()
+    configuration = IJWTSecurityConfiguration(manager)
+    if not configuration.enabled:
+        raise HTTPServiceUnavailable()
+    if Authenticated not in request.effective_principals:
+        raise HTTPForbidden()
+    custom_claims = request.params.get('claims', {})
+    return {
+        'status': 'success',
+        configuration.access_token_name:
+            create_jwt_token(request,
+                             request.authenticated_userid,
+                             expiration=configuration.access_expiration,
+                             obj=ACCESS_OBJECT,
+                             **custom_claims),
+        configuration.refresh_token_name:
+            create_jwt_token(request,
+                             request.authenticated_userid,
+                             expiration=configuration.refresh_expiration,
+                             obj=REFRESH_OBJECT)
+    }
 
 
 @jwt_verify.post(require_csrf=False,
