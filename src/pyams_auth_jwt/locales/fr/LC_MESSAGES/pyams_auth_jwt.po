@@ -17,13 +17,13 @@ msgstr "Authentification JWT"
 
 #: src/pyams_auth_jwt/interfaces.py:73 src/pyams_auth_jwt/interfaces.py:138
 msgid "Access token attribute"
-msgstr "Nom du token d'accès"
+msgstr "Nom du jeton d'accès"
 
 #: src/pyams_auth_jwt/interfaces.py:74
 msgid ""
 "Name of the JSON attribute containing access token returned by REST APIs"
 msgstr ""
-"Nom de l'attribut JSON retourné par l'API REST contenant les tokens d'accès"
+"Nom de l'attribut JSON retourné par l'API REST contenant le jeton d'accès"
 
 #: src/pyams_auth_jwt/interfaces.py:79 src/pyams_auth_jwt/interfaces.py:144
 msgid "Refresh token attribute"
@@ -33,7 +33,7 @@ msgstr "Nom du jeton de rafraîchissement"
 msgid ""
 "Name of the JSON attribute containing refresh token returned by REST APIs"
 msgstr ""
-"Nom de l'attribut JSON retourné par l'API REST contenant les tokens de "
+"Nom de l'attribut JSON retourné par l'API REST contenant le jeton de "
 "rafraîchissement"
 
 #: src/pyams_auth_jwt/interfaces.py:87
@@ -42,7 +42,7 @@ msgstr "Activer le mode \"local\" ?"
 
 #: src/pyams_auth_jwt/interfaces.py:88
 msgid "Enable direct login via JWT authentication"
-msgstr "Activer la gestion en local des tokens JWT"
+msgstr "Activer la gestion en local des jetons JWT"
 
 #: src/pyams_auth_jwt/interfaces.py:92
 msgid "JWT encoding algorithm"
@@ -83,19 +83,19 @@ msgstr ""
 
 #: src/pyams_auth_jwt/interfaces.py:111
 msgid "Access token lifetime"
-msgstr "Durée de vie des tokens d'accès"
+msgstr "Durée de vie des jetons d'accès"
 
 #: src/pyams_auth_jwt/interfaces.py:112
 msgid "JWT access token lifetime, in seconds"
-msgstr "Durée de vie des tokens d'accès JWT, en secondes"
+msgstr "Durée de vie des jetons d'accès JWT, en secondes"
 
 #: src/pyams_auth_jwt/interfaces.py:116
 msgid "Refresh token lifetime"
-msgstr "Durée de vie des tokens de refresh"
+msgstr "Durée de vie des jetons de refresh"
 
 #: src/pyams_auth_jwt/interfaces.py:117
 msgid "JWT refresh token lifetime, in seconds"
-msgstr "Durée de vie des tokens de rafraîchissement, en secondes"
+msgstr "Durée de vie des jetons de rafraîchissement, en secondes"
 
 #: src/pyams_auth_jwt/interfaces.py:121
 msgid "Enable JWT proxy authentication?"
@@ -106,7 +106,7 @@ msgid ""
 "If this option is enabled, tokens management requests will be forwarded to "
 "another authentication authority"
 msgstr ""
-"Si cette option est activée, la gestion des tokens JWT est déléguée à une "
+"Si cette option est activée, la gestion des jetons JWT est déléguée à une "
 "autre autorité d'authentification"
 
 #: src/pyams_auth_jwt/interfaces.py:127
@@ -119,7 +119,7 @@ msgid ""
 "tokens management requests will be forwarded"
 msgstr ""
 "URL de base (protocole et nom d'hôte) de l'autorité d'authentification à "
-"laquelle est déléguée la gestion des tokens"
+"laquelle est déléguée la gestion des jetons"
 
 #: src/pyams_auth_jwt/interfaces.py:133
 msgid "Token getter service"
@@ -135,13 +135,13 @@ msgstr ""
 msgid ""
 "Name of the JSON attribute returned by REST API containing access tokens"
 msgstr ""
-"Nom de l'attribut JSON retourné par l'API REST contenant les tokens d'accès"
+"Nom de l'attribut JSON retourné par l'API REST contenant les jetons d'accès"
 
 #: src/pyams_auth_jwt/interfaces.py:145
 msgid ""
 "Name of the JSON attribute returned by REST API containing refresh tokens"
 msgstr ""
-"Nom de l'attribut JSON retourné par l'API REST contenant les tokens de "
+"Nom de l'attribut JSON retourné par l'API REST contenant les jetons de "
 "rafraîchissement"
 
 #: src/pyams_auth_jwt/interfaces.py:150
@@ -162,8 +162,8 @@ msgstr "Service de rafraîchissement"
 #: src/pyams_auth_jwt/interfaces.py:157
 msgid "REST HTTP service used to get a new access token with a refresh token"
 msgstr ""
-"URL relative du service REST permettant de récupérer un nouveau token "
-"d'accès à partir d'un token de rafraîchissement"
+"URL relative du service REST permettant de récupérer un nouveau jeton "
+"d'accès à partir d'un jeton de rafraîchissement"
 
 #: src/pyams_auth_jwt/interfaces.py:162
 msgid "Token verify service"
@@ -257,7 +257,7 @@ msgid ""
 msgstr ""
 "Le mode \"local\" du module d'authentification JWT permet de générer, "
 "vérifier et rafraîchir les jetons JWT localement.\n"
-"Vous pouvez utiliser un simple secret pour encrypter les tokens, ou utiliser "
+"Vous pouvez utiliser un simple secret pour encrypter les jetons, ou utiliser "
 "un couple de clés publique et privée (qui peuvent notamment être utilisées "
 "pour partager des jetons entre plusieurs applications qui peuvent s'appuyer "
 "sur une autorité d'authentification commune)."
