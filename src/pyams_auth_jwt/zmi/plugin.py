@@ -25,12 +25,10 @@ from pyams_layer.interfaces import IPyAMSLayer
 from pyams_security.interfaces import ISecurityManager
 from pyams_security.interfaces.base import MANAGE_SECURITY_PERMISSION
 from pyams_security_views.zmi import ISecurityMenu
-from pyams_site.interfaces import ISiteRoot
 from pyams_skin.interfaces.viewlet import IHeaderViewletManager
 from pyams_skin.viewlet.help import AlertMessage
 from pyams_utils.adapter import adapter_config
 from pyams_utils.cache import clear_cache
-from pyams_utils.registry import get_utility
 from pyams_viewlet.viewlet import viewlet_config
 from pyams_zmi.form import AdminEditForm, FormGroupChecker
 from pyams_zmi.interfaces import IAdminLayer
@@ -43,7 +41,7 @@ from pyams_auth_jwt import _  # pylint: disable=ungrouped-imports
 
 
 @viewlet_config(name='jwt-security-configuration.menu',
-                context=ISiteRoot, layer=IAdminLayer,
+                context=ISecurityManager, layer=IAdminLayer,
                 manager=ISecurityMenu, weight=50,
                 permission=MANAGE_SECURITY_PERMISSION)
 class JWTSecurityConfiguration(NavigationMenuItem):
@@ -53,7 +51,8 @@ class JWTSecurityConfiguration(NavigationMenuItem):
     href = '#jwt-security-configuration.html'
 
 
-@ajax_form_config(name='jwt-security-configuration.html', context=ISiteRoot, layer=IPyAMSLayer,
+@ajax_form_config(name='jwt-security-configuration.html',
+                  context=ISecurityManager, layer=IPyAMSLayer,
                   permission=MANAGE_SECURITY_PERMISSION)
 class JWTSecurityConfigurationEditForm(AdminEditForm):
     """JWT security configuration edit form"""
@@ -64,8 +63,7 @@ class JWTSecurityConfigurationEditForm(AdminEditForm):
     fields = Fields(IJWTSecurityConfiguration).select('access_token_name', 'refresh_token_name')
 
     def get_content(self):
-        sm = get_utility(ISecurityManager)  # pylint: disable=invalid-name
-        return IJWTSecurityConfiguration(sm)
+        return IJWTSecurityConfiguration(self.context)
 
     def apply_changes(self, data):
         configuration = self.get_content()
@@ -77,7 +75,7 @@ class JWTSecurityConfigurationEditForm(AdminEditForm):
 
 
 @adapter_config(name='jwt-configuration',
-                required=(ISiteRoot, IAdminLayer, JWTSecurityConfigurationEditForm),
+                required=(ISecurityManager, IAdminLayer, JWTSecurityConfigurationEditForm),
                 provides=IGroup)
 class JWTConfigurationGroup(FormGroupChecker):
     """JWT configuration edit group"""
@@ -101,7 +99,7 @@ class JWTConfigurationGroup(FormGroupChecker):
 
 
 @viewlet_config(name='jwt-configuration.header',
-                context=ISiteRoot, layer=IAdminLayer, view=JWTConfigurationGroup,
+                context=ISecurityManager, layer=IAdminLayer, view=JWTConfigurationGroup,
                 manager=IHeaderViewletManager, weight=1)
 class JWTConfigurationHeader(AlertMessage):
     """JWT configuration header"""
@@ -130,7 +128,7 @@ class JWTConfigurationKeyAlert(AlertMessage):
 
 
 @adapter_config(name='jwt-proxy-configuration',
-                required=(ISiteRoot, IAdminLayer, JWTSecurityConfigurationEditForm),
+                required=(ISecurityManager, IAdminLayer, JWTSecurityConfigurationEditForm),
                 provides=IGroup)
 class JWTProxyConfigurationGroup(FormGroupChecker):
     """JWT proxy configuration edit group"""
@@ -144,12 +142,11 @@ class JWTProxyConfigurationGroup(FormGroupChecker):
     weight = 20
 
     def get_content(self):
-        sm = get_utility(ISecurityManager)  # pylint: disable=invalid-name
-        return IJWTSecurityConfiguration(sm)
+        return IJWTSecurityConfiguration(self.context)
 
 
 @viewlet_config(name='jwt-proxy-configuration.header',
-                context=ISiteRoot, layer=IAdminLayer, view=JWTProxyConfigurationGroup,
+                context=ISecurityManager, layer=IAdminLayer, view=JWTProxyConfigurationGroup,
                 manager=IHeaderViewletManager, weight=1)
 class JWTProxyConfigurationHeader(AlertMessage):
     """JWT proxy configuration header"""
@@ -165,7 +162,7 @@ class JWTProxyConfigurationHeader(AlertMessage):
 
 
 @adapter_config(name='jwt-proxy-cache-configuration',
-                required=(ISiteRoot, IAdminLayer, JWTProxyConfigurationGroup),
+                required=(ISecurityManager, IAdminLayer, JWTProxyConfigurationGroup),
                 provides=IGroup)
 class JWTProxyCacheConfigurationGroup(FormGroupChecker):
     """JWT proxy cache configuration edit group"""
