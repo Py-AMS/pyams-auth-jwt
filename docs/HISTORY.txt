@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.4.1
+-----
+ - added expiration date (based on refresh token lifetime) to response when generating tokens
+
 1.4.0
 -----
  - added REST API to get token from an already authorized principal
