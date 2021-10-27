@@ -152,6 +152,7 @@ def get_jwt_token(request):
     principal_id = sm.authenticate(credentials, request)
     if principal_id is not None:
         custom_claims = params.get('claims', {})
+        request.response.cache_expires(configuration.refresh_expiration)
         return {
             'status': 'success',
             configuration.access_token_name:
@@ -257,6 +258,7 @@ def get_current_jwt_token(request):
     if Authenticated not in request.effective_principals:
         raise HTTPForbidden()
     custom_claims = request.params.get('claims', {})
+    request.response.cache_expires(configuration.refresh_expiration)
     return {
         'status': 'success',
         configuration.access_token_name:
