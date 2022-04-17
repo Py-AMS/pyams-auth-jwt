@@ -143,3 +143,23 @@ dist-3.9:
     except:
         variables:
             - $PYPI_UPLOAD_DISABLED
+
+dist-3.10:
+    stage: dist
+    image: python:3.10
+    script:
+        - pip install pip==21.0.1 setuptools==50.3.2 zc.buildout==2.13.4 zc.recipe.egg==2.0.7
+        - buildout
+        - ./bin/test
+        - buildout setup setup.py bdist_egg
+        - pip install twine
+        - twine upload --skip-existing dist/*
+    variables:
+        TWINE_USERNAME: $PYPI_USERNAME
+        TWINE_PASSWORD: $PYPI_PASSWORD
+    only:
+        refs:
+            - tags
+    except:
+        variables:
+            - $PYPI_UPLOAD_DISABLED
