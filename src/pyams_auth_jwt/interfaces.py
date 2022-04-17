@@ -18,7 +18,7 @@ This module provides public interfaces.
 from zope.interface import Attribute, Interface, Invalid, invariant
 from zope.schema import Bool, Choice, Int, Text, TextLine
 
-from pyams_security.interfaces import IAuthenticationPlugin
+from pyams_security.interfaces.plugin import IAuthenticationPlugin
 from pyams_utils.cache import BEAKER_CACHES_VOCABULARY
 from pyams_utils.schema import HTTPMethodField
 

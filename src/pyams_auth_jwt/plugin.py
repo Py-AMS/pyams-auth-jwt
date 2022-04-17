@@ -28,7 +28,8 @@ from zope.schema.fieldproperty import FieldProperty
 from pyams_auth_jwt.interfaces import ACCESS_OBJECT, IJWTAuthenticationPlugin, \
     IJWTProxyHandler, IJWTSecurityConfiguration, JWT_CONFIGURATION_KEY
 from pyams_security.credential import Credentials
-from pyams_security.interfaces import ICredentialsPlugin, ISecurityManager
+from pyams_security.interfaces import ISecurityManager
+from pyams_security.interfaces.plugin import ICredentialsPlugin
 from pyams_utils.adapter import adapter_config, get_annotation_adapter
 from pyams_utils.factory import factory_config
 from pyams_utils.property import ClassPropertyType, classproperty
