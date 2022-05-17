@@ -29,6 +29,7 @@ from pyams_auth_jwt.interfaces import ACCESS_OBJECT, IJWTProxyHandler, \
 from pyams_auth_jwt.plugin import create_jwt_token, get_jwt_claims as get_request_claims
 from pyams_security.credential import Credentials
 from pyams_security.interfaces import ISecurityManager
+from pyams_security.rest import check_cors_origin, set_cors_headers
 from pyams_utils.registry import query_utility
 from pyams_utils.rest import PropertiesMapping
 
@@ -121,10 +122,18 @@ jwt_token = Service(name=REST_TOKEN_ROUTE,
                     description="JWT tokens management")
 
 
+@jwt_token.options(validators=(check_cors_origin, set_cors_headers),
+                   **service_params)
+def jwt_token_options(request):  # pylint: disable=unused-argument
+    """JWT token OPTIONS handler"""
+    return ''
+
+
 @jwt_token.post(require_csrf=False,
                 content_type=('application/json', 'multipart/form-data'),
                 schema=LoginSchema(),
-                validators=(colander_body_validator,),
+                validators=(check_cors_origin, colander_body_validator,
+                            set_cors_headers),
                 **service_params)
 def get_jwt_token(request):
     """REST login endpoint for JWT authentication"""
@@ -174,10 +183,10 @@ def get_jwt_token(request):
     }
 
 
-@jwt_token.get(require_csrf=False,
-               content_type=('multipart/form-data', 'application/json'),
+@jwt_token.get(content_type=('multipart/form-data', 'application/json'),
                schema=ClaimsObjectSchema(),
-               validators=(colander_body_validator,),
+               validators=(check_cors_origin, colander_body_validator,
+                           set_cors_headers),
                **service_params)
 def get_jwt_claims(request):
     """Extract claims from provided JWT token"""
@@ -202,7 +211,8 @@ def get_jwt_claims(request):
                  content_type=('multipart/form-data', 'application/json'),
                  jwt_object=REFRESH_OBJECT,
                  schema=ClaimsSetterSchema(),
-                 validators=(colander_body_validator,),
+                 validators=(check_cors_origin, colander_body_validator,
+                             set_cors_headers),
                  **service_params)
 def refresh_jwt_token(request):
     """JWT token refresh service"""
@@ -244,8 +254,15 @@ jwt_verify = Service(name=REST_VERIFY_ROUTE,
                      description="JWT tokens verification")
 
 
-@jwt_verify.get(require_csrf=False,
-                schema=ClaimsObjectSchema(),
+@jwt_verify.options(validators=(check_cors_origin, set_cors_headers),
+                    **service_params)
+def jwt_verify_options(request):  # pylint: disable=unused-argument
+    """JWT token verification OPTIONS handler"""
+    return ''
+
+
+@jwt_verify.get(schema=ClaimsObjectSchema(),
+                validators=(check_cors_origin, set_cors_headers),
                 **service_params)
 def get_current_jwt_token(request):
     """Get current JWT token for authenticated principal"""
@@ -278,7 +295,8 @@ def get_current_jwt_token(request):
 @jwt_verify.post(require_csrf=False,
                  jwt_object=ACCESS_OBJECT,
                  schema=ClaimsObjectSchema(),
-                 validators=(colander_body_validator,),
+                 validators=(check_cors_origin, colander_body_validator,
+                             set_cors_headers),
                  **service_params)
 def verify_jwt_token(request):
     """JWT token verification view"""
