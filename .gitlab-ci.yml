@@ -13,21 +13,23 @@ cache:
         - parts/
 
 before_script:
-    - /bin/ping -W 1 -c 1 172.17.0.1 && export http_proxy=http://172.17.0.1:3128/
-    - /bin/ping -W 1 -c 1 172.17.0.1 && export HTTP_PROXY=http://172.17.0.1:3128/
-    - /bin/ping -W 1 -c 1 172.17.0.1 && export https_proxy=http://172.17.0.1:3128/
-    - /bin/ping -W 1 -c 1 172.17.0.1 && export HTTPS_PROXY=http://172.17.0.1:3128/
+    - apt update && apt install -y iputils-ping
+    - ping -c 1 -W 1 172.17.0.1 && export http_proxy=http://172.17.0.1:3128/
+    - ping -c 1 -W 1 172.17.0.1 && export HTTP_PROXY=http://172.17.0.1:3128/
+    - ping -c 1 -W 1 172.17.0.1 && export https_proxy=http://172.17.0.1:3128/
+    - ping -c 1 -W 1 172.17.0.1 && export HTTPS_PROXY=http://172.17.0.1:3128/
 
 bootstrap:
     stage: .pre
     script:
-        - pip install pip==21.0.1 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - pip install pip==22.3.1 setuptools==65.6.3 zc.buildout==3.0.1 zc.recipe.egg==2.0.7
         - buildout
 
 test-3.7:
     stage: test
     script:
-        - pip install anybadge coverage
+        - pip install anybadge==1.14.0 coverage==6.5.0 zc.buildout==3.0.1
+        - buildout
         - mkdir ./coverage
         - coverage erase
         - coverage run ./bin/test | tee ./coverage/coverage.log
@@ -44,7 +46,8 @@ pylint:
     stage: quality
     allow_failure: true
     script:
-        - pip install pylint-exit anybadge
+        - pip install pylint-exit anybadge zc.buildout==3.0.1
+        - buildout
         - mkdir ./pylint
         - ./bin/pylint src/pyams_auth_jwt/ | tee ./pylint/pylint.log || pylint-exit $?
         - PYLINT_SCORE=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' ./pylint/pylint.log)
@@ -75,7 +78,7 @@ coverage:
 build-3.7:
     stage: build
     script:
-        - pip install pip==21.0.1 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - pip install zc.buildout==3.0.1
         - buildout setup setup.py clean --all sdist bdist_egg bdist_wheel
     artifacts:
         paths:
@@ -86,9 +89,8 @@ build-3.7:
 
 dist-3.7:
     stage: dist
-    image: python:3.7
     script:
-        - pip install pip==21.0.1 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - pip install pip==22.3.1 setuptools==65.6.3 zc.buildout==3.0.1 zc.recipe.egg==2.0.7
         - buildout
         - ./bin/test
         - buildout setup setup.py bdist_egg
@@ -108,7 +110,7 @@ dist-3.8:
     stage: dist
     image: python:3.8
     script:
-        - pip install pip==21.0.1 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - pip install pip==22.3.1 setuptools==65.6.3 zc.buildout==3.0.1 zc.recipe.egg==2.0.7
         - buildout
         - ./bin/test
         - buildout setup setup.py bdist_egg
@@ -128,7 +130,7 @@ dist-3.9:
     stage: dist
     image: python:3.9
     script:
-        - pip install pip==21.0.1 setuptools==50.3.2 zc.buildout zc.recipe.egg
+        - pip install pip==22.3.1 setuptools==65.6.3 zc.buildout==3.0.1 zc.recipe.egg==2.0.7
         - buildout
         - ./bin/test
         - buildout setup setup.py bdist_egg
@@ -148,7 +150,27 @@ dist-3.10:
     stage: dist
     image: python:3.10
     script:
-        - pip install pip==21.0.1 setuptools==50.3.2 zc.buildout==2.13.4 zc.recipe.egg==2.0.7
+        - pip install pip==22.3.1 setuptools==65.6.3 zc.buildout==3.0.1 zc.recipe.egg==2.0.7
+        - buildout
+        - ./bin/test
+        - buildout setup setup.py bdist_egg
+        - pip install twine
+        - twine upload --skip-existing dist/*
+    variables:
+        TWINE_USERNAME: $PYPI_USERNAME
+        TWINE_PASSWORD: $PYPI_PASSWORD
+    only:
+        refs:
+            - tags
+    except:
+        variables:
+            - $PYPI_UPLOAD_DISABLED
+
+dist-3.11:
+    stage: dist
+    image: python:3.11
+    script:
+        - pip install pip==22.3.1 setuptools==65.6.3 zc.buildout==3.0.1 zc.recipe.egg==2.0.7
         - buildout
         - ./bin/test
         - buildout setup setup.py bdist_egg
