@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.4.4
+-----
+ - updated PyJWT package dependency to 2.6.0
+ - added support for Python 3.11
+
 1.4.3
 -----
  - added CORS validators to REST services
