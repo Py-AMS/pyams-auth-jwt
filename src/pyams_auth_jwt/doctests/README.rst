@@ -27,6 +27,8 @@ credentials from matching "Authorization headers:
     >>> include_zodbconn(config)
     >>> from cornice import includeme as include_cornice
     >>> include_cornice(config)
+    >>> from cornice_swagger import includeme as include_swagger
+    >>> include_swagger(config)
     >>> from pyams_utils import includeme as include_utils
     >>> include_utils(config)
     >>> from pyams_site import includeme as include_site
@@ -128,7 +130,7 @@ You have to set several security manager properties to use JWT:
     >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
     >>> jwt_result = get_jwt_token(jwt_request)
     >>> pprint.pprint(jwt_result)
-    {'message': 'Invalid credentials!', 'status': 'error'}
+    {'message': 'Unauthorized: invalid credentials', 'status': 'error'}
 
 This error is normal, because the user doesn't actually exist! So let's create it:
 
@@ -187,7 +189,7 @@ We can try the same process using bad credentials or a bad JWT token:
     >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
     >>> jwt_result = get_jwt_token(jwt_request)
     >>> pprint.pprint(jwt_result)
-    {'message': 'Invalid credentials!', 'status': 'error'}
+    {'message': 'Unauthorized: invalid credentials', 'status': 'error'}
 
     >>> jwt_request = DummyRequest(authorization=('Bearer', 'abc.def.ghi'), remote_addr='127.0.0.1')
     >>> jwt_principal_id = sm.authenticated_userid(jwt_request)
@@ -332,9 +334,9 @@ Claims are stored into request environment, so we have to create a new request:
     ...                            params={'login': 'user1', 'password': 'passwd'})
     >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
     >>> jwt_result = get_jwt_token(jwt_request)
-    Traceback (most recent call last):
-    ...
-    pyramid.httpexceptions.HTTPServiceUnavailable: The server is currently unavailable. Please try again at a later time.
+    >>> pprint.pprint(jwt_result)
+    {'message': 'Service Unavailable',
+     'status': 'error'}
 
 
 Testing plugin API
@@ -348,9 +350,9 @@ We first have to get JWT tokens; let's reactivate our plug-in:
     >>> jwt_request = DummyRequest(method='PATCH', path='/api/auth/jwt/token')
     >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
     >>> jwt_result = get_jwt_token(jwt_request)
-    Traceback (most recent call last):
-    ...
-    pyramid.httpexceptions.HTTPBadRequest: The server could not comply with the request since it is either malformed or otherwise incorrect.
+    >>> pprint.pprint(jwt_result)
+    {'message': 'Bad Request: missing credentials',
+     'status': 'error'}
 
     >>> jwt_request = DummyRequest(method='PATCH', path='/api/auth/jwt/token',
     ...                            params={'login': 'user1', 'password': 'passwd'})
@@ -400,10 +402,8 @@ We can always try o refresh a token without providing any access token:
 
     >>> jwt_request = DummyRequest()
     >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
-    >>> refresh_jwt_token(jwt_request)
-    Traceback (most recent call last):
-    ...
-    pyramid.httpexceptions.HTTPForbidden: Access was denied to this resource.
+    >>> pprint.pprint(refresh_jwt_token(jwt_request))
+    {'message': 'Forbidden', 'status': 'error'}
 
 
 Let's finally try to verify a token; this requires a POST on another access point:
@@ -418,10 +418,8 @@ Let's finally try to verify a token; this requires a POST on another access poin
     >>> another_token = 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJvYmoiOiJhY2Nlc3MiLCJpYXQiOjE2MDg2NDU2NzQsImV4cCI6MTYwODY0OTI3NCwic3ViIjoic3lzdGVtOmFkbWluIn0.HeKZILlFb9qWA0quEwlLTlgWGA3nMx32bsnao1GFNxSR5_7NDlG3XJhzMMWvR7iMwf6u2AdLiVajZSDtpi1UVQ'
     >>> jwt_request = DummyRequest(authorization=('Bearer', another_token))
     >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
-    >>> verify_jwt_token(jwt_request)
-    Traceback (most recent call last):
-    ...
-    pyramid.httpexceptions.HTTPForbidden: ...
+    >>> pprint.pprint(verify_jwt_token(jwt_request))
+    {'message': 'Forbidden', 'status': 'error'}
 
 
 Custom JWT tokens object predicate

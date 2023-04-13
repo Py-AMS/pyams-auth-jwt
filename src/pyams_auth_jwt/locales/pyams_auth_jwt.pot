@@ -1,232 +1,228 @@
 #
 # SOME DESCRIPTIVE TITLE
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE 1.0\n"
-"POT-Creation-Date: 2021-01-01 16:01+0100\n"
+"POT-Creation-Date: 2023-04-12 15:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Lingua 3.10.dev0\n"
+"Generated-By: Lingua 4.15.0\n"
 
-#: ./src/pyams_auth_jwt/plugin.py:95
-msgid "JWT authentication"
-msgstr ""
-
-#: ./src/pyams_auth_jwt/interfaces.py:73 ./src/pyams_auth_jwt/interfaces.py:138
+#: ./src/pyams_auth_jwt/interfaces.py:81 ./src/pyams_auth_jwt/interfaces.py:146
 msgid "Access token attribute"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:74
+#: ./src/pyams_auth_jwt/interfaces.py:82
 msgid ""
 "Name of the JSON attribute containing access token returned by REST APIs"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:79 ./src/pyams_auth_jwt/interfaces.py:144
+#: ./src/pyams_auth_jwt/interfaces.py:87 ./src/pyams_auth_jwt/interfaces.py:152
 msgid "Refresh token attribute"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:80
+#: ./src/pyams_auth_jwt/interfaces.py:88
 msgid ""
 "Name of the JSON attribute containing refresh token returned by REST APIs"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:87
+#: ./src/pyams_auth_jwt/interfaces.py:95
 msgid "Enable JWT direct authentication?"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:88
+#: ./src/pyams_auth_jwt/interfaces.py:96
 msgid "Enable direct login via JWT authentication"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:92
+#: ./src/pyams_auth_jwt/interfaces.py:100
 msgid "JWT encoding algorithm"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:93
+#: ./src/pyams_auth_jwt/interfaces.py:101
 msgid ""
 "HS* protocols are using the secret, while RS* protocols are using RSA keys"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:99
+#: ./src/pyams_auth_jwt/interfaces.py:107
 msgid "JWT secret"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:100
+#: ./src/pyams_auth_jwt/interfaces.py:108
 msgid "This secret is required when using HS* encryption"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:103
+#: ./src/pyams_auth_jwt/interfaces.py:111
 msgid "JWT private key"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:104
+#: ./src/pyams_auth_jwt/interfaces.py:112
 msgid "The secret key is required when using RS* algorithm"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:107
+#: ./src/pyams_auth_jwt/interfaces.py:115
 msgid "JWT public key"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:108
+#: ./src/pyams_auth_jwt/interfaces.py:116
 msgid "The public key is required when using RS* algorithm"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:111
+#: ./src/pyams_auth_jwt/interfaces.py:119
 msgid "Access token lifetime"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:112
+#: ./src/pyams_auth_jwt/interfaces.py:120
 msgid "JWT access token lifetime, in seconds"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:116
+#: ./src/pyams_auth_jwt/interfaces.py:124
 msgid "Refresh token lifetime"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:117
+#: ./src/pyams_auth_jwt/interfaces.py:125
 msgid "JWT refresh token lifetime, in seconds"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:121
+#: ./src/pyams_auth_jwt/interfaces.py:129
 msgid "Enable JWT proxy authentication?"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:122
+#: ./src/pyams_auth_jwt/interfaces.py:130
 msgid ""
 "If this option is enabled, tokens management requests will be forwarded to "
 "another authentication authority"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:127
+#: ./src/pyams_auth_jwt/interfaces.py:135
 msgid "Authentication authority"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:128
+#: ./src/pyams_auth_jwt/interfaces.py:136
 msgid ""
 "Base URL (protocol and hostname) of the authentication authority to which "
 "tokens management requests will be forwarded"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:133
+#: ./src/pyams_auth_jwt/interfaces.py:141
 msgid "Token getter service"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:134
+#: ./src/pyams_auth_jwt/interfaces.py:142
 msgid "REST HTTP service used to get a new token"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:139
+#: ./src/pyams_auth_jwt/interfaces.py:147
 msgid ""
 "Name of the JSON attribute returned by REST API containing access tokens"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:145
+#: ./src/pyams_auth_jwt/interfaces.py:153
 msgid ""
 "Name of the JSON attribute returned by REST API containing refresh tokens"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:150
+#: ./src/pyams_auth_jwt/interfaces.py:158
 msgid "Token claims getter"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:151
+#: ./src/pyams_auth_jwt/interfaces.py:159
 msgid ""
 "REST HTTP service used to extract claims from provided authorization token"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:156
+#: ./src/pyams_auth_jwt/interfaces.py:164
 msgid "Token refresh service"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:157
+#: ./src/pyams_auth_jwt/interfaces.py:165
 msgid "REST HTTP service used to get a new access token with a refresh token"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:162
+#: ./src/pyams_auth_jwt/interfaces.py:170
 msgid "Token verify service"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:163
+#: ./src/pyams_auth_jwt/interfaces.py:171
 msgid "REST HTTP service used to check validity of an existing token"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:168
+#: ./src/pyams_auth_jwt/interfaces.py:176
 msgid "Verify SSL?"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:169
+#: ./src/pyams_auth_jwt/interfaces.py:177
 msgid "If 'no', SSL certificates will not be verified"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:173
+#: ./src/pyams_auth_jwt/interfaces.py:181
 msgid "Use verified tokens cache?"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:174
+#: ./src/pyams_auth_jwt/interfaces.py:182
 msgid ""
 "If selected, this option allows to store credentials in a local cache from "
 "which they can be reused"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:179
+#: ./src/pyams_auth_jwt/interfaces.py:187
 msgid "Selected tokens cache"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:180
+#: ./src/pyams_auth_jwt/interfaces.py:188
 msgid "Beaker cache selected to store validated tokens"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:189
+#: ./src/pyams_auth_jwt/interfaces.py:197
 msgid "You can't enable both local and proxy modes"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:192
+#: ./src/pyams_auth_jwt/interfaces.py:200
 msgid "You must choose an algorithm to enable JWT authentication"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:202
-msgid "You must define authentication authority to use proxy mode"
-msgstr ""
-
-#: ./src/pyams_auth_jwt/interfaces.py:204
-msgid "You must choose a cache to enable tokens caching"
-msgstr ""
-
-#: ./src/pyams_auth_jwt/interfaces.py:195
+#: ./src/pyams_auth_jwt/interfaces.py:203
 msgid "You must define JWT secret to use HS256 algorithm"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/interfaces.py:198
+#: ./src/pyams_auth_jwt/interfaces.py:206
 msgid "You must define a private and a public key to use RS256 algorithm"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/api/__init__.py:81
-msgid "Invalid credentials!"
+#: ./src/pyams_auth_jwt/interfaces.py:210
+msgid "You must define authentication authority to use proxy mode"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/zmi/plugin.py:54 ./src/pyams_auth_jwt/zmi/plugin.py:64
+#: ./src/pyams_auth_jwt/interfaces.py:212
+msgid "You must choose a cache to enable tokens caching"
+msgstr ""
+
+#: ./src/pyams_auth_jwt/plugin.py:94
+msgid "JWT authentication"
+msgstr ""
+
+#: ./src/pyams_auth_jwt/zmi/plugin.py:50 ./src/pyams_auth_jwt/zmi/plugin.py:61
 msgid "JWT configuration"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/zmi/plugin.py:63
+#: ./src/pyams_auth_jwt/zmi/plugin.py:60
 msgid "Security manager"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/zmi/plugin.py:113
+#: ./src/pyams_auth_jwt/zmi/plugin.py:109
 msgid ""
 "JWT authentication module \"local mode\" allows to generate, check and refresh tokens locally.\n"
 "You can choose to use a simple secret key to encrypt your tokens, or to use a private and public keys pair (which can to be used to share tokens between two applications)."
 msgstr ""
 
-#: ./src/pyams_auth_jwt/zmi/plugin.py:126
+#: ./src/pyams_auth_jwt/zmi/plugin.py:122
 msgid ""
 "You can use the `openssl` command to generate your keys:\n"
 "\n"
@@ -234,7 +230,7 @@ msgid ""
 "    openssl rsa -pubout -in private-key.pem -out public-key.pem\n"
 msgstr ""
 
-#: ./src/pyams_auth_jwt/zmi/plugin.py:161
+#: ./src/pyams_auth_jwt/zmi/plugin.py:156
 msgid ""
 "JWT authentication module \"proxy mode\" relies on another authentication authority (which can be another application using this JWT package) to generate, check and refresh tokens. This authority can be used to share access tokens between different applications.\n"
 "You can cache tokens to reduce the number of requests which will be forwarded to the authentication authority."

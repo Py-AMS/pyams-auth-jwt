@@ -20,8 +20,8 @@ import sys
 from colander import Int, MappingSchema, OneOf, SchemaNode, String, drop
 from cornice import Service
 from cornice.validators import colander_body_validator
-from pyramid.httpexceptions import HTTPAccepted, HTTPBadRequest, HTTPForbidden, \
-    HTTPNotFound, HTTPOk, HTTPServiceUnavailable, HTTPUnauthorized
+from pyramid.httpexceptions import HTTPAccepted, HTTPBadRequest, HTTPForbidden, HTTPOk, HTTPServiceUnavailable, \
+    HTTPUnauthorized
 from pyramid.security import Authenticated
 
 from pyams_auth_jwt.interfaces import ACCESS_OBJECT, IJWTProxyHandler, \
@@ -31,124 +31,100 @@ from pyams_security.credential import Credentials
 from pyams_security.interfaces import ISecurityManager
 from pyams_security.rest import check_cors_origin, set_cors_headers
 from pyams_utils.registry import query_utility
-from pyams_utils.rest import PropertiesMapping
-
+from pyams_utils.rest import BaseStatusSchema, PropertiesMapping, STATUS, http_error, rest_responses
 
 __docformat__ = 'restructuredtext'
-
-from pyams_auth_jwt import _  # pylint: disable=ungrouped-imports
 
 
 TEST_MODE = sys.argv[-1].endswith('/test')
 
 
-class ErrorSchema(MappingSchema):
-    """Base error schema"""
-    status = SchemaNode(String(),
-                        title=_("Response status"))
-    message = SchemaNode(String(),
-                         title=_("Error message"),
-                         missing=drop)
-
-
-class ClaimsSetterSchema(MappingSchema):
+class ClaimsInfo(MappingSchema):
     """Claims setter schema"""
     claims = SchemaNode(PropertiesMapping(),
-                        title=_("Custom claims"),
+                        description="Custom claims",
                         missing=drop)
 
 
-class LoginSchema(ClaimsSetterSchema):
+class LoginInfo(ClaimsInfo):
     """Login schema"""
     login = SchemaNode(String(),
-                       title=_("Login"))
+                       description="User login")
     password = SchemaNode(String(),
-                          title=_("Password"))
+                          description="User password")
 
 
-class StatusSchema(MappingSchema):
-    """Base status response schema"""
-    status = SchemaNode(String(),
-                        title=_("Response status"),
-                        validator=OneOf(('success', 'error')))
-
-
-class TokensSchema(StatusSchema):
-    """Tokens response schema"""
+class TokensResult(BaseStatusSchema):
+    """Tokens result schema"""
     accessToken = SchemaNode(String(),
-                             title=_("Access token"))
+                             description="Access token")
     refreshToken = SchemaNode(String(),
-                              title=_("Refresh token"))
+                              description="Refresh token")
 
 
-class ClaimsObjectSchema(MappingSchema):
-    """Claims getter schema"""
+class ClaimsObjectInfo(MappingSchema):
+    """Claims object info"""
     obj = SchemaNode(String(),
-                     title=_("Token object"),
+                     description="Token object",
                      validator=OneOf((ACCESS_OBJECT, REFRESH_OBJECT)),
                      missing=drop)
 
 
-class ClaimsSchema(ClaimsObjectSchema):
-    """Token claims schema"""
+class ClaimsElements(ClaimsObjectInfo):
+    """Token claims elements schema"""
     sub = SchemaNode(String(),
-                     title=_("Principal ID"))
+                     description="Principal ID")
     iat = SchemaNode(Int(),
-                     title=_("Token issue timestamp, in seconds"))
+                     description="Token issue timestamp, in seconds")
     exp = SchemaNode(Int(),
-                     title=_("Token expiration timestamp, in seconds"))
+                     description="Token expiration timestamp, in seconds")
 
 
-jwt_responses = {
-    HTTPOk.code: TokensSchema(description=_("Tokens properties")),
-    HTTPAccepted.code: StatusSchema(description=_("Token accepted")),
-    HTTPNotFound.code: ErrorSchema(description=_("Page not found")),
-    HTTPUnauthorized.code: ErrorSchema(description=_("Unauthorized")),
-    HTTPForbidden.code: ErrorSchema(description=_("Forbidden access")),
-    HTTPBadRequest.code: ErrorSchema(description=_("Missing arguments")),
-    HTTPServiceUnavailable.code: ErrorSchema(description=_("Service unavailable"))
-}
-
-if TEST_MODE:
-    service_params = {}
-else:
-    service_params = {
-        'response_schemas': jwt_responses
-    }
-
+#
+# JWT token management service
+#
 
 jwt_token = Service(name=REST_TOKEN_ROUTE,
                     pyramid_route=REST_TOKEN_ROUTE,
                     description="JWT tokens management")
 
 
-@jwt_token.options(validators=(check_cors_origin, set_cors_headers),
-                   **service_params)
+@jwt_token.options(validators=(check_cors_origin, set_cors_headers))
 def jwt_token_options(request):  # pylint: disable=unused-argument
     """JWT token OPTIONS handler"""
     return ''
 
 
+class JWTTokenPostResponse(MappingSchema):
+    """Token post response"""
+
+    body = TokensResult()
+
+
+jwt_token_post_responses = rest_responses.copy()
+jwt_token_post_responses[HTTPOk.code] = JWTTokenPostResponse(
+    description="Get new access and refresh tokens matching credentials")
+
+
 @jwt_token.post(require_csrf=False,
                 content_type=('application/json', 'multipart/form-data'),
-                schema=LoginSchema(),
-                validators=(check_cors_origin, colander_body_validator,
-                            set_cors_headers),
-                **service_params)
+                schema=LoginInfo(),
+                validators=(check_cors_origin, colander_body_validator, set_cors_headers),
+                response_schemas=jwt_token_post_responses)
 def get_jwt_token(request):
-    """REST login endpoint for JWT authentication"""
+    """Get new access and refresh tokens matching credentials"""
     # check security manager utility
     sm = query_utility(ISecurityManager)  # pylint: disable=invalid-name
     if sm is None:
-        raise HTTPServiceUnavailable()
+        return http_error(request, HTTPServiceUnavailable)
     configuration = IJWTSecurityConfiguration(sm)
     if not configuration.enabled:
-        raise HTTPServiceUnavailable()
+        return http_error(request, HTTPServiceUnavailable)
     # check request params
     params = request.params if TEST_MODE else request.validated
     login = params.get('login')
     if not login:
-        raise HTTPBadRequest()
+        return http_error(request, HTTPBadRequest, 'missing credentials')
     credentials = Credentials('jwt', id=login, **params)
     # use remote authentication authority
     if configuration.proxy_mode:
@@ -159,43 +135,49 @@ def get_jwt_token(request):
             return tokens
     # authenticate principal in security manager
     principal_id = sm.authenticate(credentials, request)
-    if principal_id is not None:
-        custom_claims = params.get('claims', {})
-        request.response.cache_expires(configuration.refresh_expiration)
-        return {
-            'status': 'success',
-            configuration.access_token_name:
-                create_jwt_token(request,
-                                 principal_id,
-                                 expiration=configuration.access_expiration,
-                                 obj=ACCESS_OBJECT,
-                                 **custom_claims),
-            configuration.refresh_token_name:
-                create_jwt_token(request,
-                                 principal_id,
-                                 expiration=configuration.refresh_expiration,
-                                 obj=REFRESH_OBJECT)
-        }
-    request.response.status_code = HTTPUnauthorized.code
+    if principal_id is None:
+        return http_error(request, HTTPUnauthorized, "invalid credentials")
+    custom_claims = params.get('claims', {})
+    request.response.cache_expires(configuration.refresh_expiration)
     return {
-        'status': 'error',
-        'message': request.localizer.translate(_("Invalid credentials!"))
+        'status': STATUS.SUCCESS.value,
+        configuration.access_token_name:
+            create_jwt_token(request,
+                             principal_id,
+                             expiration=configuration.access_expiration,
+                             obj=ACCESS_OBJECT,
+                             **custom_claims),
+        configuration.refresh_token_name:
+            create_jwt_token(request,
+                             principal_id,
+                             expiration=configuration.refresh_expiration,
+                             obj=REFRESH_OBJECT)
     }
 
 
+class JWTTokenGetResponse(MappingSchema):
+    """Token claims getter response"""
+
+    body = ClaimsElements()
+
+
+jwt_token_get_responses = rest_responses.copy()
+jwt_token_get_responses[HTTPOk.code] = JWTTokenGetResponse(
+    description="Extract claims from provided token")
+
+
 @jwt_token.get(content_type=('multipart/form-data', 'application/json'),
-               schema=ClaimsObjectSchema(),
-               validators=(check_cors_origin, colander_body_validator,
-                           set_cors_headers),
-               **service_params)
+               schema=ClaimsObjectInfo(),
+               validators=(check_cors_origin, colander_body_validator, set_cors_headers),
+               response_schemas=jwt_token_get_responses)
 def get_jwt_claims(request):
-    """Extract claims from provided JWT token"""
+    """Extract claims from provided token"""
     sm = query_utility(ISecurityManager)  # pylint: disable=invalid-name
     if sm is None:
-        raise HTTPServiceUnavailable()
+        return http_error(request, HTTPServiceUnavailable)
     configuration = IJWTSecurityConfiguration(sm)
     if not configuration.enabled:
-        raise HTTPServiceUnavailable()
+        return http_error(request, HTTPServiceUnavailable)
     params = request.params if TEST_MODE else request.validated
     obj = params.get('obj')
     if configuration.proxy_mode:
@@ -207,21 +189,31 @@ def get_jwt_claims(request):
     return get_request_claims(request, obj)
 
 
+class JWTTokenPatchResponse(MappingSchema):
+    """Token patch response"""
+
+    body = TokensResult()
+
+
+jwt_token_patch_responses = rest_responses.copy()
+jwt_token_patch_responses[HTTPOk.code] = JWTTokenPatchResponse(
+    description="Get new access token from valid refresh token")
+
+
 @jwt_token.patch(require_csrf=False,
                  content_type=('multipart/form-data', 'application/json'),
                  jwt_object=REFRESH_OBJECT,
-                 schema=ClaimsSetterSchema(),
-                 validators=(check_cors_origin, colander_body_validator,
-                             set_cors_headers),
-                 **service_params)
+                 schema=ClaimsInfo(),
+                 validators=(check_cors_origin, colander_body_validator, set_cors_headers),
+                 response_schemas=jwt_token_patch_responses)
 def refresh_jwt_token(request):
     """JWT token refresh service"""
     sm = query_utility(ISecurityManager)  # pylint: disable=invalid-name
     if sm is None:
-        raise HTTPServiceUnavailable()
+        return http_error(request, HTTPServiceUnavailable)
     configuration = IJWTSecurityConfiguration(sm)
     if not configuration.enabled:
-        raise HTTPServiceUnavailable()
+        return http_error(request, HTTPServiceUnavailable)
     # user remote authentication authority
     if configuration.proxy_mode:
         handler = IJWTProxyHandler(sm, None)
@@ -232,14 +224,14 @@ def refresh_jwt_token(request):
     # refresh token locally
     claims = get_jwt_claims(request)
     if not claims:
-        raise HTTPForbidden()
+        return http_error(request, HTTPForbidden)
     principal_id = claims.get('sub')
     if not principal_id:
-        raise HTTPUnauthorized()
+        return http_error(request, HTTPUnauthorized)
     params = request.params if TEST_MODE else request.validated
     custom_claims = params.get('claims', {})
     return {
-        'status': 'success',
+        'status': STATUS.SUCCESS.value,
         configuration.access_token_name:
             create_jwt_token(request,
                              principal_id,
@@ -254,30 +246,40 @@ jwt_verify = Service(name=REST_VERIFY_ROUTE,
                      description="JWT tokens verification")
 
 
-@jwt_verify.options(validators=(check_cors_origin, set_cors_headers),
-                    **service_params)
+@jwt_verify.options(validators=(check_cors_origin, set_cors_headers))
 def jwt_verify_options(request):  # pylint: disable=unused-argument
     """JWT token verification OPTIONS handler"""
     return ''
 
 
-@jwt_verify.get(schema=ClaimsObjectSchema(),
+class JWTVerifyGetResponse(MappingSchema):
+    """Token verification response"""
+
+    body = TokensResult()
+
+
+jwt_verify_get_responses = rest_responses.copy()
+jwt_verify_get_responses[HTTPOk.code] = JWTVerifyGetResponse(
+    description="Get JWT token for authenticated principal")
+
+
+@jwt_verify.get(schema=ClaimsObjectInfo(),
                 validators=(check_cors_origin, set_cors_headers),
-                **service_params)
+                response_schemas=jwt_verify_get_responses)
 def get_current_jwt_token(request):
-    """Get current JWT token for authenticated principal"""
+    """Get JWT token for authenticated principal"""
     manager = query_utility(ISecurityManager)
     if manager is None:
-        raise HTTPServiceUnavailable()
+        return http_error(request, HTTPServiceUnavailable)
     configuration = IJWTSecurityConfiguration(manager)
     if not configuration.enabled:
-        raise HTTPServiceUnavailable()
+        return http_error(request, HTTPServiceUnavailable)
     if Authenticated not in request.effective_principals:
-        raise HTTPForbidden()
+        return http_error(request, HTTPForbidden)
     custom_claims = request.params.get('claims', {})
     request.response.cache_expires(configuration.refresh_expiration)
     return {
-        'status': 'success',
+        'status': STATUS.SUCCESS.value,
         configuration.access_token_name:
             create_jwt_token(request,
                              request.authenticated_userid,
@@ -292,24 +294,34 @@ def get_current_jwt_token(request):
     }
 
 
+class JWTVerifyPostResponse(MappingSchema):
+    """JWT token verification response"""
+
+    body = BaseStatusSchema()
+
+
+jwt_verify_post_responses = rest_responses.copy()
+jwt_verify_post_responses[HTTPOk.code] = JWTVerifyPostResponse(
+    description="Verify JWT access token")
+
+
 @jwt_verify.post(require_csrf=False,
                  jwt_object=ACCESS_OBJECT,
-                 schema=ClaimsObjectSchema(),
-                 validators=(check_cors_origin, colander_body_validator,
-                             set_cors_headers),
-                 **service_params)
+                 schema=ClaimsObjectInfo(),
+                 validators=(check_cors_origin, colander_body_validator, set_cors_headers),
+                 response_schemas=jwt_verify_post_responses)
 def verify_jwt_token(request):
-    """JWT token verification view"""
+    """Verify JWT access token"""
     manager = query_utility(ISecurityManager)
     if manager is None:
-        raise HTTPServiceUnavailable()
+        return http_error(request, HTTPServiceUnavailable)
     configuration = IJWTSecurityConfiguration(manager)
     if not configuration.enabled:
-        raise HTTPServiceUnavailable()
+        return http_error(request, HTTPServiceUnavailable)
     claims = get_jwt_claims(request)
     if not claims:
-        raise HTTPForbidden()
+        return http_error(request, HTTPForbidden)
     request.response.status_code = HTTPAccepted.code
     return {
-        'status': 'success'
+        'status': STATUS.SUCCESS.value
     }
