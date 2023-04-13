@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.4.5
+-----
+ - updated Colander API schemas for better OpenAPI specifications
+
 1.4.4
 -----
  - updated PyJWT package dependency to 2.6.0
