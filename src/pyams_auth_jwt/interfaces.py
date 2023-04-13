@@ -33,7 +33,10 @@ from pyams_auth_jwt import _
 #
 
 REST_TOKEN_ROUTE = 'jwt.rest.token'
+REST_TOKEN_PATH = '/api/auth/jwt/token'
+
 REST_VERIFY_ROUTE = 'jwt.rest.verify'
+REST_VERIFY_PATH = '/api/auth/jwt/verify'
 
 
 #
@@ -141,7 +144,7 @@ class IJWTSecurityConfiguration(Interface):
     get_token_service = HTTPMethodField(title=_("Token getter service"),
                                         description=_("REST HTTP service used to get a new token"),
                                         required=False,
-                                        default=('POST', '/api/auth/jwt/token'))
+                                        default=('POST', REST_TOKEN_PATH))
 
     proxy_access_token_name = TextLine(title=_("Access token attribute"),
                                        description=_("Name of the JSON attribute returned by "
@@ -159,19 +162,19 @@ class IJWTSecurityConfiguration(Interface):
                                          description=_("REST HTTP service used to extract claims "
                                                        "from provided authorization token"),
                                          required=False,
-                                         default=('GET', '/api/auth/jwt/token'))
+                                         default=('GET', REST_TOKEN_PATH))
 
     refresh_token_service = HTTPMethodField(title=_("Token refresh service"),
                                             description=_("REST HTTP service used to get a new "
                                                           "access token with a refresh token"),
                                             required=False,
-                                            default=('PATCH', '/api/auth/jwt/token'))
+                                            default=('PATCH', REST_TOKEN_PATH))
 
     verify_token_service = HTTPMethodField(title=_("Token verify service"),
                                            description=_("REST HTTP service used to check "
                                                          "validity of an existing token"),
                                            required=False,
-                                           default=('POST', '/api/auth/jwt/verify'))
+                                           default=('POST', REST_VERIFY_PATH))
 
     verify_ssl = Bool(title=_("Verify SSL?"),
                       description=_("If 'no', SSL certificates will not be verified"),
