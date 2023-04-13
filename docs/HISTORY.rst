@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.4.6
+-----
+ - interfaces cleanup
+
 1.4.5
 -----
  - updated Colander API schemas for better OpenAPI specifications
