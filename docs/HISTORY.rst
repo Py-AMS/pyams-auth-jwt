@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.0.0
+-----
+ - upgraded to Pyramid 2.0
+
 1.4.6
 -----
  - interfaces cleanup
