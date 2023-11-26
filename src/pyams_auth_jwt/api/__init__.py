@@ -20,9 +20,9 @@ import sys
 from colander import Int, MappingSchema, OneOf, SchemaNode, String, drop
 from cornice import Service
 from cornice.validators import colander_body_validator
+from pyramid.authorization import Authenticated
 from pyramid.httpexceptions import HTTPAccepted, HTTPBadRequest, HTTPForbidden, HTTPOk, HTTPServiceUnavailable, \
     HTTPUnauthorized
-from pyramid.security import Authenticated
 
 from pyams_auth_jwt.interfaces import ACCESS_OBJECT, IJWTProxyHandler, \
     IJWTSecurityConfiguration, REFRESH_OBJECT, REST_TOKEN_ROUTE, REST_VERIFY_ROUTE
@@ -268,14 +268,17 @@ jwt_verify_get_responses[HTTPOk.code] = JWTVerifyGetResponse(
                 response_schemas=jwt_verify_get_responses)
 def get_current_jwt_token(request):
     """Get JWT token for authenticated principal"""
+    identity = request.identity
+    if identity is None:
+        return http_error(request, HTTPUnauthorized)
+    if Authenticated not in identity.principals:
+        return http_error(request, HTTPForbidden)
     manager = query_utility(ISecurityManager)
     if manager is None:
         return http_error(request, HTTPServiceUnavailable)
     configuration = IJWTSecurityConfiguration(manager)
     if not configuration.enabled:
         return http_error(request, HTTPServiceUnavailable)
-    if Authenticated not in request.effective_principals:
-        return http_error(request, HTTPForbidden)
     custom_claims = request.params.get('claims', {})
     request.response.cache_expires(configuration.refresh_expiration)
     return {

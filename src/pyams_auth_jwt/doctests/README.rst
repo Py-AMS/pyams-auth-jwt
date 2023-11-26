@@ -64,14 +64,11 @@ Using PyAMS security policy
 
 The plugin should be included correctly into PyAMS security policy:
 
-    >>> from pyramid.authorization import ACLAuthorizationPolicy
-    >>> config.set_authorization_policy(ACLAuthorizationPolicy())
-
-    >>> from pyams_security.policy import PyAMSAuthenticationPolicy
-    >>> policy = PyAMSAuthenticationPolicy(secret='my secret',
-    ...                                    http_only=True,
-    ...                                    secure=False)
-    >>> config.set_authentication_policy(policy)
+    >>> from pyams_security.policy import PyAMSSecurityPolicy
+    >>> policy = PyAMSSecurityPolicy(secret='my secret',
+    ...                              http_only=True,
+    ...                              secure=False)
+    >>> config.set_security_policy(policy)
 
     >>> from pyams_security.tests import new_test_request
     >>> request = new_test_request('admin', 'admin', registry=config.registry)
@@ -122,9 +119,6 @@ You have to set several security manager properties to use JWT:
     >>> from pyams_auth_jwt.plugin import create_jwt_token, get_jwt_claims
     >>> from pyams_auth_jwt.api import get_jwt_token
 
-    >>> DummyRequest().unauthenticated_userid is None
-    True
-
     >>> jwt_request = DummyRequest(method='POST', path='/api/auth/jwt/login',
     ...                            params={'login': 'user1', 'password': 'passwd'})
     >>> jwt_request.create_jwt_token = lambda *args, **kwargs: create_jwt_token(jwt_request, *args, **kwargs)
@@ -160,13 +154,10 @@ This error is normal, because the user doesn't actually exist! So let's create i
 Let's now try to use this token; this requires a Beaker cache:
 
     >>> jwt_request = DummyRequest(authorization=('Bearer', jwt_result['accessToken']))
-    >>> jwt_request.unauthenticated_userid
+    >>> jwt_request.authenticated_userid
     'users:user1'
     >>> jwt_principal_id = sm.authenticated_userid(jwt_request)
     >>> jwt_principal_id
-    'users:user1'
-
-    >>> plugin.unauthenticated_userid(jwt_request)
     'users:user1'
 
 
@@ -176,11 +167,9 @@ policy methods can be used anyway, and will return usual cookies:
     >>> policy.authenticated_userid(jwt_request)
     'users:user1'
     >>> policy.remember(jwt_request, jwt_principal_id)
-    [('Set-Cookie', 'auth_ticket=...!userid_type:b64unicode; Path=/; HttpOnly; SameSite=Lax'),...]
+    [('Set-Cookie', 'auth_ticket=...!userid_type:b64unicode; Domain=example.com; Path=/; HttpOnly; SameSite=Lax')]
     >>> policy.forget(jwt_request)
-    [('Set-Cookie', 'auth_ticket=; Max-Age=0; Path=/; expires=Wed, 31-Dec-97 23:59:59 GMT; HttpOnly; SameSite=Lax'),
-     ('Set-Cookie', 'auth_ticket=; Domain=example.com; Max-Age=0; Path=/; expires=Wed, 31-Dec-97 23:59:59 GMT; HttpOnly; SameSite=Lax'),
-     ('Set-Cookie', 'auth_ticket=; Domain=.example.com; Max-Age=0; Path=/; expires=Wed, 31-Dec-97 23:59:59 GMT; HttpOnly; SameSite=Lax')]
+    [('Set-Cookie', 'auth_ticket=; Domain=example.com; Max-Age=0; Path=/; expires=Wed, 31-Dec-97 23:59:59 GMT; HttpOnly; SameSite=Lax')]
 
 We can try the same process using bad credentials or a bad JWT token:
 
@@ -294,9 +283,6 @@ We are also going to change the token authorization type:
      'obj': 'access',
      'sub': 'users:user1'}
 
-    >>> plugin.unauthenticated_userid(jwt_request)
-    'users:user1'
-
 We can also change the HTTP header used to get JWT token:
 
     >>> config.registry.settings['pyams.jwt.http_header'] = 'X-PyAMS-Authorization'
@@ -320,7 +306,7 @@ We can also change the HTTP header used to get JWT token:
 Disabling the JWT configuration always return empty results:
 
     >>> jwt_configuration.local_mode = False
-    >>> jwt_request.unauthenticated_userid is None
+    >>> jwt_request.authenticated_userid is None
     True
 
 Claims are stored into request environment, so we have to create a new request:

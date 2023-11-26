@@ -85,8 +85,8 @@ class JWTConfigurationGroup(FormGroupChecker):
                                                       'access_expiration', 'refresh_expiration')
     weight = 10
 
-    def update_widgets(self, prefix=None):
-        super(JWTConfigurationGroup, self).update_widgets(prefix)
+    def update_widgets(self, prefix=None, use_form_mode=True):
+        super().update_widgets(prefix, use_form_mode)
         widget = self.widgets.get('private_key')
         if widget is not None:
             widget.prefix = JWTConfigurationKeyAlert(self.context, self.request, self, None)

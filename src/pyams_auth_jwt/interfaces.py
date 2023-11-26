@@ -233,6 +233,3 @@ class IJWTAuthenticationPlugin(IAuthenticationPlugin):
 
     def get_claims(self, request):
         """Extract claims from JWT token"""
-
-    def unauthenticated_userid(self, request):
-        """User ID claimed by request credentials, if any"""

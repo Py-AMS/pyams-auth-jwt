@@ -229,11 +229,6 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
         claims = self.get_claims(request, obj=ACCESS_OBJECT)
         return claims.get('sub') if claims else None
 
-    def unauthenticated_userid(self, request):
-        """Get unauthenticated user ID"""
-        claims = self.get_claims(request, obj=ACCESS_OBJECT)
-        return claims.get('sub') if claims else None
-
 
 @adapter_config(required=IJWTAuthenticationPlugin,
                 provides=IJWTSecurityConfiguration)
