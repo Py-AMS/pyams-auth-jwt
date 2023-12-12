@@ -57,8 +57,8 @@ class JWTSecurityConfiguration(NavigationMenuItem):
 class JWTSecurityConfigurationEditForm(AdminEditForm):
     """JWT security configuration edit form"""
 
-    title = _("Security manager")
-    legend = _("JWT configuration")
+    title = _("JWT configuration")
+    legend = _("JWT tokens settings")
 
     fields = Fields(IJWTSecurityConfiguration).select('access_token_name', 'refresh_token_name')
 
