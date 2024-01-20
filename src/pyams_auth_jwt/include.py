@@ -39,10 +39,10 @@ def include_package(config):
 
     # register new REST API routes
     config.add_route(REST_TOKEN_ROUTE,
-                     config.registry.settings.get('pyams.jwt.rest_token_route',
+                     config.registry.settings.get(f'{REST_TOKEN_ROUTE}_route.path',
                                                   REST_TOKEN_PATH))
     config.add_route(REST_VERIFY_ROUTE,
-                     config.registry.settings.get('pyams.jwt.rest_verify_route',
+                     config.registry.settings.get(f'{REST_VERIFY_ROUTE}_route.path',
                                                   REST_VERIFY_PATH))
 
     # update JWT algorithms
