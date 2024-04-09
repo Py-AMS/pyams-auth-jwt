@@ -152,8 +152,8 @@ msgstr "Service de consultation"
 msgid ""
 "REST HTTP service used to extract claims from provided authorization token"
 msgstr ""
-"URL relative du service REST permettant d'extraire les "
-"\"réclamations\" (claims) des jetons JWT"
+"URL relative du service REST permettant d'extraire les \"réclamations"
+"\" (claims) des jetons JWT"
 
 #: src/pyams_auth_jwt/interfaces.py:167
 msgid "Token refresh service"
