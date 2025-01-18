@@ -101,12 +101,12 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
     @classproperty
     def http_header(cls):  # pylint: disable=no-self-argument,no-self-use
         """HTTP header setting"""
-        return get_current_registry().settings.get('pyams.jwt.http_header', 'Authorization')
+        return get_current_registry().settings.get('pyams_auth_jwt.http_header', 'Authorization')
 
     @classproperty
     def auth_type(cls):  # pylint: disable=no-self-argument,no-self-use
         """HTTP authentication type setting"""
-        return get_current_registry().settings.get('pyams.jwt.auth_type', 'Bearer')
+        return get_current_registry().settings.get('pyams_auth_jwt.auth_type', 'Bearer')
 
     @property
     def configuration(self):  # pylint: disable=no-self-use

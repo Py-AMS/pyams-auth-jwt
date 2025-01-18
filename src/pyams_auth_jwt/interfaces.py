@@ -32,13 +32,13 @@ from pyams_auth_jwt import _
 # API endpoints
 #
 
-REST_TOKEN_ROUTE = 'pyams_jwt.rest.token'
+REST_TOKEN_ROUTE = 'pyams_auth_jwt.rest.token'
 '''REST JWT token API route name'''
 
 REST_TOKEN_PATH = '/api/auth/jwt/token'
 '''REST JWT token API default path'''
 
-REST_VERIFY_ROUTE = 'pyams_jwt.rest.verify'
+REST_VERIFY_ROUTE = 'pyams_auth_jwt.rest.verify'
 '''REST JWT verify API route name'''
 
 REST_VERIFY_PATH = '/api/auth/jwt/verify'

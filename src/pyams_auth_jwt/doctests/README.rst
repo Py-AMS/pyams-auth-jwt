@@ -262,7 +262,7 @@ Let's try to use another JWT configuration:
 
 We are also going to change the token authorization type:
 
-    >>> config.registry.settings['pyams.jwt.auth_type'] = 'JWT'
+    >>> config.registry.settings['pyams_auth_jwt.auth_type'] = 'JWT'
 
     >>> jwt_request = DummyRequest()
     >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
@@ -285,7 +285,7 @@ We are also going to change the token authorization type:
 
 We can also change the HTTP header used to get JWT token:
 
-    >>> config.registry.settings['pyams.jwt.http_header'] = 'X-PyAMS-Authorization'
+    >>> config.registry.settings['pyams_auth_jwt.http_header'] = 'X-PyAMS-Authorization'
 
     >>> jwt_request = DummyRequest()
     >>> jwt_request.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
@@ -301,7 +301,7 @@ We can also change the HTTP header used to get JWT token:
      'obj': 'access',
      'sub': 'users:user1'}
 
-    >>> del config.registry.settings['pyams.jwt.http_header']
+    >>> del config.registry.settings['pyams_auth_jwt.http_header']
 
 Disabling the JWT configuration always return empty results:
 
@@ -330,7 +330,7 @@ Testing plugin API
 
 We first have to get JWT tokens; let's reactivate our plug-in:
 
-    >>> config.registry.settings['pyams.jwt.auth_type'] = 'Bearer'
+    >>> config.registry.settings['pyams_auth_jwt.auth_type'] = 'Bearer'
     >>> jwt_configuration.local_mode = True
 
     >>> jwt_request = DummyRequest(method='PATCH', path='/api/auth/jwt/token')

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.0.3
+-----
+ - updated settings configuration keys
+
 2.0.2
 -----
  - updated REST API route name and path configuration setting name
