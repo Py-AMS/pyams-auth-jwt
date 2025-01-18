@@ -207,7 +207,7 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
         if configuration is None:
             return {}
         if configuration.proxy_mode:
-            handler = IJWTProxyHandler(self)
+            handler = IJWTProxyHandler(self, None)
             if handler is not None:
                 _status_code, claims = handler.get_claims(request, obj)  # pylint: disable=assignment-from-no-return
                 return claims
