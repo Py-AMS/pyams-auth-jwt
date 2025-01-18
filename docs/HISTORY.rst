@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.0.4
+-----
+ - added interface adapter check
+ - replace `datetime.utcnow` call with `datime.now(timezone.utc)`
+
 2.0.3
 -----
  - updated settings configuration keys
