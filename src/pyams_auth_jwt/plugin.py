@@ -16,7 +16,7 @@ This module provides a JWT authentication plug-in.
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import jwt
 from ZODB.POSException import ConnectionStateError
@@ -144,7 +144,7 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
         payload = {}
         payload.update(claims)
         payload['sub'] = principal
-        payload['iat'] = iat = datetime.utcnow()
+        payload['iat'] = iat = datetime.now(timezone.utc)
         expiration = expiration or self.expiration
         if expiration:
             if not isinstance(expiration, timedelta):
