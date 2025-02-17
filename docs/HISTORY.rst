@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.1.0
+-----
+ - replaced 'jwt_object' view predicate with a view deriver to raise
+   HTTP Unauthorized error instead of HTTP NotFound
+
 2.0.4
 -----
  - added interface adapter check
