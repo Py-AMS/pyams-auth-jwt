@@ -22,6 +22,7 @@ import jwt
 from ZODB.POSException import ConnectionStateError
 from jwt import InvalidTokenError
 from persistent import Persistent
+from pyramid.httpexceptions import HTTPUnauthorized
 from zope.container.contained import Contained
 from zope.schema.fieldproperty import FieldProperty
 
@@ -254,25 +255,20 @@ def get_jwt_claims(request, obj=None):
     return {}
 
 
-class JWTTokenObjectPredicate:
-    """JWT token object predicate
-
-    This filter is used to filter JWT tokens based on their "obj" attribute.
+def jwt_object_view(view, info):
+    """JWT object view deriver
+    
+    This filter is raising an HTTP Unauthorized exception if required JWT
+    token object is not provided by the incoming request
     """
-
-    def __init__(self, obj, config):  # pylint: disable=unused-argument
-        self.obj = obj
-
-    def text(self):
-        """Predicate text output"""
-        return 'jwt_object = %s' % (self.obj,)
-
-    phash = text
-
-    def __call__(self, context, request):
-        obj = self.obj
-        if obj:
-            claims = get_jwt_claims(request, obj=obj)
-            if claims:
-                return True
-        return False
+    jwt_object = info.options.get('jwt_object')
+    if jwt_object:
+        def view_wrapper(context, request):
+            claims = get_jwt_claims(request, obj=jwt_object)
+            if not claims:
+                raise HTTPUnauthorized
+            return view(context, request)
+        return view_wrapper
+    return view
+    
+jwt_object_view.options = ('jwt_object',)

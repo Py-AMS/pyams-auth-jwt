@@ -1,4 +1,4 @@
-================================
+from pyams_auth_jwt.interfaces import REFRESH_OBJECT================================
 PyAMS JWT authentication package
 ================================
 
@@ -408,20 +408,21 @@ Let's finally try to verify a token; this requires a POST on another access poin
     {'message': 'Forbidden', 'status': 'error'}
 
 
-Custom JWT tokens object predicate
-----------------------------------
+Custom JWT tokens view deriver
+------------------------------
 
-When a view is protected by a JWT token, you can add a custom predicate to specify which token
-type is authorized.
+When a view is protected by a JWT token, you can add a custom view deriver to specify which kind of token
+is required.
 
 PyAMS JWT plug-in actually provides two tokens objects, which are "access" and "refresh".
 
-    >>> from pyams_auth_jwt.interfaces import ACCESS_OBJECT
-    >>> from pyams_auth_jwt.plugin import JWTTokenObjectPredicate
+    >>> from zope.interface import Interface
+    >>> from pyramid.response import Response
+    >>> from pyramid.interfaces import IRequest, IView
+    >>> from pyramid.view import view_config
 
-    >>> predicate = JWTTokenObjectPredicate(ACCESS_OBJECT, config)
-    >>> predicate.text()
-    'jwt_object = access'
+    >>> from pyams_auth_jwt.interfaces import ACCESS_OBJECT, REFRESH_OBJECT
+    >>> from pyams_auth_jwt.plugin import jwt_object_view
 
     >>> jwt_request = DummyRequest(method='POST', path='/api/auth/jwt/login',
     ...                            params={'login': 'user1', 'password': 'passwd'})
@@ -433,15 +434,31 @@ PyAMS JWT plug-in actually provides two tokens objects, which are "access" and "
      'refreshToken': 'eyJ...',
      'status': 'success'}
 
-    >>> jwt_access = DummyRequest(authorization=('Bearer', jwt_result['accessToken']))
-    >>> jwt_access.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
-    >>> predicate(None, jwt_access)
-    True
+    >>> def my_view(context, request):
+    ...     return Response('OK')
 
-    >>> jwt_refresh = DummyRequest(authorization=('Bearer', jwt_result['refreshToken']))
-    >>> jwt_refresh.get_jwt_claims = lambda *args, **kwargs: get_jwt_claims(jwt_request, *args, **kwargs)
-    >>> predicate(None, jwt_refresh)
-    False
+    >>> access_token = create_jwt_token(request, 'system:admin', obj=ACCESS_OBJECT)
+    >>> my_request = DummyRequest(authorization=('Bearer', access_token))
+
+    >>> options = {}
+    >>> options['jwt_object'] = ACCESS_OBJECT
+
+    >>> class Info:
+    ...     def __init__(self, options):
+    ...         self.options = options
+
+    >>> info = Info(options)
+    >>> deriver = jwt_object_view(my_view, info)
+    >>> deriver(app, my_request)
+    <Response at 0x... 200 OK>
+
+    >>> options['jwt_object'] = REFRESH_OBJECT
+    >>> info = Info(options)
+    >>> deriver = jwt_object_view(my_view, info)
+    >>> deriver(app, my_request)
+    Traceback (most recent call last):
+    ...
+    pyramid.httpexceptions.HTTPUnauthorized: This server could not verify that you are authorized to access the document you requested...
 
 
 JWT plugin proxy mode

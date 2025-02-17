@@ -230,7 +230,7 @@ def refresh_jwt_token(request):
         return http_error(request, HTTPUnauthorized)
     params = request.params if TEST_MODE else request.validated
     custom_claims = params.get('claims', {})
-    return {
+    result = {
         'status': STATUS.SUCCESS.value,
         configuration.access_token_name:
             create_jwt_token(request,
@@ -239,6 +239,12 @@ def refresh_jwt_token(request):
                              obj=ACCESS_OBJECT,
                              **custom_claims)
     }
+    if request.registry.settings.get('pyams_auth_jwt.auto_refresh', False):
+        result[configuration.refresh_token_name] = create_jwt_token(request,
+                                                                    principal_id,
+                                                                    expiration=configuration.refresh_expiration,
+                                                                    obj=REFRESH_OBJECT)
+    return result
 
 
 jwt_verify = Service(name=REST_VERIFY_ROUTE,
