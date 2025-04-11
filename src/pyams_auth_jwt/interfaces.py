@@ -107,11 +107,15 @@ class IJWTSecurityConfiguration(Interface):
                       default=False)
 
     algorithm = Choice(title=_("JWT encoding algorithm"),
-                       description=_("HS* protocols are using the secret, while RS* protocols "
-                                     "are using RSA keys"),
+                       description=_("HS* protocols are using a shared secret, RS* protocols "
+                                     "are using RSA keys and ES* protocols are using ECDSA keys; "
+                                     "ES* protocols are as safe as RS* protocols but quicker than "
+                                     "RS* protocols for the same hash length"),
                        required=False,
-                       values=('RS256', 'RS512', 'HS256', 'HS512'),
-                       default='RS512')
+                       values=('ES256', 'ES384', 'ES512',
+                               'RS256', 'RS384', 'RS512',
+                               'HS256', 'HS384', 'HS512'),
+                       default='ES512')
 
     secret = TextLine(title=_("JWT secret"),
                       description=_("This secret is required when using HS* encryption"),
@@ -209,11 +213,11 @@ class IJWTSecurityConfiguration(Interface):
                 raise Invalid(_("You must choose an algorithm to enable JWT authentication"))
             if self.algorithm.startswith('HS'):  # pylint: disable=no-member
                 if not self.secret:
-                    raise Invalid(_("You must define JWT secret to use HS256 algorithm"))
-            elif self.algorithm.startswith('RS'):  # pylint: disable=no-member
+                    raise Invalid(_("You must define JWT secret to use HS* algorithms"))
+            else:
                 if not (self.private_key and self.public_key):
                     raise Invalid(_("You must define a private and a public key to use "
-                                    "RS256 algorithm"))
+                                    "RS* or ES* algorithms"))
         if self.proxy_mode:
             if not self.authority:
                 raise Invalid(_("You must define authentication authority to use proxy mode"))

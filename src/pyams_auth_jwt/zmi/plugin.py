@@ -119,10 +119,15 @@ class JWTConfigurationKeyAlert(AlertMessage):
     status = 'info'
     css_class = 'mb-1 p-2'
 
-    _message = _("""You can use the `openssl` command to generate your keys:
+    _message = _("""To generate your RSA keys for RS* protocols, use:
 
-    openssl genpkey -algorithm RSA -out private-key.pem
-    openssl rsa -pubout -in private-key.pem -out public-key.pem
+    openssl genpkey -algorithm RSA -out private-key-rsa.pem
+    openssl rsa -pubout -in private-key-rsa.pem -out public-key-rsa.pem
+    
+To generate ECDSA keys for ES* protocols, use:
+
+    openssl ecparam -genkey -name secp521r1 -out private-key-ecdsa.pem
+    openssl ec -pubout -in private-key-ecdsa.pem -out public-key-ecdsa.pem
 """)
     message_renderer = 'markdown'
 
