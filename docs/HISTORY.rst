@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.2.0
+-----
+ - added support for registered JWT client keys
+ - added support for ES256, ES384 and ES512 signature algorithms
+ - refactored plugin methods decorators
+
 2.1.0
 -----
  - replaced 'jwt_object' view predicate with a view deriver to raise
