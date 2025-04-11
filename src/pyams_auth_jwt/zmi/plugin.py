@@ -17,6 +17,7 @@ This module is used to register ZMI views used to manage JWT configuration.
 
 from pyams_auth_jwt.interfaces import IJWTSecurityConfiguration, JWT_PROXY_CACHE_NAME, \
     JWT_PROXY_TOKENS_NAMESPACE
+from pyams_auth_jwt.zmi.interfaces import IJWTSecurityConfigurationMenu
 from pyams_form.ajax import ajax_form_config
 from pyams_form.browser.checkbox import SingleCheckBoxFieldWidget
 from pyams_form.field import Fields
@@ -29,6 +30,7 @@ from pyams_skin.interfaces.viewlet import IHeaderViewletManager
 from pyams_skin.viewlet.help import AlertMessage
 from pyams_utils.adapter import adapter_config
 from pyams_utils.cache import clear_cache
+from pyams_viewlet.manager import viewletmanager_config
 from pyams_viewlet.viewlet import viewlet_config
 from pyams_zmi.form import AdminEditForm, FormGroupChecker
 from pyams_zmi.interfaces import IAdminLayer
@@ -40,10 +42,11 @@ __docformat__ = 'restructuredtext'
 from pyams_auth_jwt import _  # pylint: disable=ungrouped-imports
 
 
-@viewlet_config(name='jwt-security-configuration.menu',
-                context=ISecurityManager, layer=IAdminLayer,
-                manager=ISecurityMenu, weight=50,
-                permission=MANAGE_SECURITY_PERMISSION)
+@viewletmanager_config(name='jwt-security-configuration.menu',
+                       context=ISecurityManager, layer=IAdminLayer,
+                       manager=ISecurityMenu, weight=50,
+                       provides=IJWTSecurityConfigurationMenu,
+                       permission=MANAGE_SECURITY_PERMISSION)
 class JWTSecurityConfiguration(NavigationMenuItem):
     """JWT security configuration menu"""
 

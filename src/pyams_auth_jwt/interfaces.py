@@ -15,13 +15,15 @@
 This module provides public interfaces.
 """
 
+from zope.annotation.interfaces import IAttributeAnnotatable
+from zope.container.interfaces import IContainer
 from zope.interface import Attribute, Interface, Invalid, invariant
-from zope.schema import Bool, Choice, Int, Text, TextLine
+from zope.schema import Bool, Choice, Datetime, Int, Text, TextLine
 
-from pyams_security.interfaces.plugin import IAuthenticationPlugin
+from pyams_security.interfaces.plugin import IAuthenticationPlugin, ICredentialsPlugin, IDirectoryPlugin
+from pyams_security.schema import PrincipalField
 from pyams_utils.cache import BEAKER_CACHES_VOCABULARY
-from pyams_utils.schema import HTTPMethodField
-
+from pyams_utils.schema import HTTPMethodField, TextLineListField
 
 __docformat__ = 'restructuredtext'
 
@@ -48,6 +50,12 @@ REST_VERIFY_PATH = '/api/auth/jwt/verify'
 #
 # JWT authentication utility interface
 #
+
+JWT_PREFIX = 'jwt'
+"""JWT plugin prefix"""
+
+JWT_CLIENT_CONTAINER_KEY = 'pyams_auth_jwt.client_keys'
+"""JWT client keys container annotations key"""
 
 JWT_CONFIGURATION_KEY = 'pyams_auth_jwt.configuration'
 """Main JWT configuration key"""
@@ -84,7 +92,87 @@ class IJWTProxyHandler(Interface):
         """Get new access token with refresh token authorization"""
 
 
-class IJWTSecurityConfiguration(Interface):
+class IJWTClientKey(Interface):
+    """JWT client key information"""
+    
+    key_id = TextLine(title=_("Key ID"),
+                      description=_("This ID must be unique between all JWT client keys, and provided as "
+                                    "'kid' tokens header"),
+                      required=True)
+    
+    enabled = Bool(title=_("Enabled client key?"),
+                   description=_("Select 'no' to disable this client key temporarily"),
+                   required=True,
+                   default=True)
+
+    label = TextLine(title=_("Client key label"),
+                     description=_("This label will be used to identify the client key"),
+                     required=True)
+
+    issuer = TextLine(title=_("Issuer"),
+                      description=_("JWT tokens matching this client_key will be accepted only if their issuer "
+                                    "('iss' claim) is matching this value"),
+                      required=True)
+    
+    audience = TextLine(title=_("Audience"),
+                        description=_("JWT tokens matching this client key will be accepted only if their audience "
+                                      "('aud' claim) is matching this value"),
+                        required=True)
+
+    public_key = Text(title=_("Client public key"),
+                      description=_("The public key is required when using RS* algorithm"),
+                      required=True)
+
+    algorithm = Choice(title=_("JWT encoding algorithm"),
+                       description=_("Protocol used by the client key"),
+                       required=True,
+                       values=('ES256', 'ES384', 'ES512',
+                               'RS256', 'RS384', 'RS512'),
+                       default='ES512')
+
+    principal_id = PrincipalField(title=_("Associated principal"),
+                                  description=_("If defined, this will identify the principal which will be used "
+                                                "when a request will be authenticated with this JWT client key"),
+                                  required=False)
+    
+    @invariant
+    def check_principal_id(self):
+        """Check principal ID"""
+        if self.principal_id and self.principal_id.startswith(f'{JWT_PREFIX}:'):
+            raise Invalid(_("Selected principal can't be another JWT client key!"))
+        
+    def get_principal(self, request=None):
+        """Get principal matching this JWT client key"""
+        
+    activation_date = Datetime(title=_("Activation date"),
+                               description=_("This JWT client key will be enabled only after this date"),
+                               required=False)
+    
+    expiration_date = Datetime(title=_("Expiration date"),
+                               description=_("This JWT client key will not be enabled after this date"),
+                               required=False)
+
+    restrict_referrers = Bool(title=_("Restrict referrers"),
+                              description=_("If this option is enabled, only selected referrers will be enabled"),
+                              required=True,
+                              default=False)
+
+    allowed_referrers = TextLineListField(title=_("Allowed referrers"),
+                                          description=_("Only selected referrers will be allowed to use this "
+                                                        "client key"),
+                                          required=False)
+
+    active = Attribute("Client key activity checker")
+    
+    
+class IJWTClientKeyContainer(IContainer):
+    """JWT client key container"""
+    
+    def update_key(self, key, old_principal_id, new_principal_id):
+        """Update key principal"""
+    
+    
+class IJWTSecurityConfiguration(IAttributeAnnotatable):
     """Security manager configuration interface for JWT"""
 
     audience = TextLine(title=_("Audience"),
@@ -229,7 +317,7 @@ class IJWTSecurityConfiguration(Interface):
                 raise Invalid(_("You must choose a cache to enable tokens caching"))
 
 
-class IJWTAuthenticationPlugin(IAuthenticationPlugin):
+class IJWTAuthenticationPlugin(ICredentialsPlugin, IAuthenticationPlugin, IDirectoryPlugin):
     """JWT authentication plugin"""
 
     configuration = Attribute("JWT configuration")

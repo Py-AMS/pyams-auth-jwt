@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE 1.0\n"
-"POT-Creation-Date: 2023-12-05 17:55+0100\n"
+"POT-Creation-Date: 2025-04-12 01:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,97 +11,227 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Lingua 3.10.dev0\n"
 
-#: src/pyams_auth_jwt/plugin.py:94
+#: src/pyams_auth_jwt/client.py:134 src/pyams_auth_jwt/zmi/__init__.py:165
+#, python-format
+msgid "JWT client key: {}"
+msgstr "Clé JWT : {}"
+
+#: src/pyams_auth_jwt/plugin.py:150
 msgid "JWT authentication"
 msgstr "Authentification JWT"
 
-#: src/pyams_auth_jwt/interfaces.py:84 src/pyams_auth_jwt/interfaces.py:149
+#: src/pyams_auth_jwt/interfaces.py:99 src/pyams_auth_jwt/zmi/container.py:108
+msgid "Key ID"
+msgstr "ID de la clé"
+
+#: src/pyams_auth_jwt/interfaces.py:100
+msgid ""
+"This ID must be unique between all JWT client keys, and provided as 'kid' "
+"tokens header"
+msgstr ""
+"Cet ID doit être unique parmi toutes les clés JWT, et fournie dans l'en-tête "
+"'kid' des jetons JWT"
+
+#: src/pyams_auth_jwt/interfaces.py:104
+msgid "Enabled client key?"
+msgstr "Clé JWT active ?"
+
+#: src/pyams_auth_jwt/interfaces.py:105
+msgid "Select 'no' to disable this client key temporarily"
+msgstr "Sélectionner 'non' pour désactiver cette clé JWT temporairement"
+
+#: src/pyams_auth_jwt/interfaces.py:109
+msgid "Client key label"
+msgstr "Libellé de la clé"
+
+#: src/pyams_auth_jwt/interfaces.py:110
+msgid "This label will be used to identify the client key"
+msgstr ""
+"Le libellé n'est utilisé que pour identifier la clé dans l'interface "
+"d'administration"
+
+#: src/pyams_auth_jwt/interfaces.py:113 src/pyams_auth_jwt/zmi/container.py:136
+msgid "Issuer"
+msgstr "Émetteur"
+
+#: src/pyams_auth_jwt/interfaces.py:114
+msgid ""
+"JWT tokens matching this client_key will be accepted only if their issuer "
+"('iss' claim) is matching this value"
+msgstr ""
+"Les jetons JWT correspondant à cette clé ne seront acceptés que si leur "
+"émetteur (champ 'iss' des revendications du ticket) correspond à cette valeur"
+
+#: src/pyams_auth_jwt/interfaces.py:118 src/pyams_auth_jwt/interfaces.py:179
+#: src/pyams_auth_jwt/zmi/container.py:152
+msgid "Audience"
+msgstr "Audience"
+
+#: src/pyams_auth_jwt/interfaces.py:119
+msgid ""
+"JWT tokens matching this client key will be accepted only if their audience "
+"('aud' claim) is matching this value"
+msgstr ""
+"Les jetons JWT correspondant à cette clé ne seront acceptés que si leur "
+"audience ('champ 'aud' des revendications du ticket) correspond à cette "
+"valeur"
+
+#: src/pyams_auth_jwt/interfaces.py:123
+msgid "Client public key"
+msgstr "Clé publique"
+
+#: src/pyams_auth_jwt/interfaces.py:124 src/pyams_auth_jwt/interfaces.py:222
+msgid "The public key is required when using RS* algorithm"
+msgstr ""
+"Une clé publique est nécessaire pour utiliser un encryptage de type RS*"
+
+#: src/pyams_auth_jwt/interfaces.py:127 src/pyams_auth_jwt/interfaces.py:202
+msgid "JWT encoding algorithm"
+msgstr "Algorithme d'encryptage"
+
+#: src/pyams_auth_jwt/interfaces.py:128
+msgid "Protocol used by the client key"
+msgstr "Protocole utilisé pour le cryptage des jetons JWT"
+
+#: src/pyams_auth_jwt/interfaces.py:134
+msgid "Associated principal"
+msgstr "Mandataire associé"
+
+#: src/pyams_auth_jwt/interfaces.py:135
+msgid ""
+"If defined, this will identify the principal which will be used when a "
+"request will be authenticated with this JWT client key"
+msgstr ""
+"S'il est défini, ce mandataire sera utilisé en lieu et place de la clé pour "
+"authentifier les requêtes qui l'utiliseront"
+
+#: src/pyams_auth_jwt/interfaces.py:143
+msgid "Selected principal can't be another JWT client key!"
+msgstr "Le mandataire sélectionné ne peut pas être une autre clé JWT !"
+
+#: src/pyams_auth_jwt/interfaces.py:148 src/pyams_auth_jwt/zmi/container.py:186
+msgid "Activation date"
+msgstr "Date d'activation"
+
+#: src/pyams_auth_jwt/interfaces.py:149
+msgid "This JWT client key will be enabled only after this date"
+msgstr "La clé JWT ne sera active qu'à partir de cette date"
+
+#: src/pyams_auth_jwt/interfaces.py:152 src/pyams_auth_jwt/zmi/container.py:203
+msgid "Expiration date"
+msgstr "Date d'expiration"
+
+#: src/pyams_auth_jwt/interfaces.py:153
+msgid "This JWT client key will not be enabled after this date"
+msgstr "La clé JWT ne sera pas active au-delà de cette date"
+
+#: src/pyams_auth_jwt/interfaces.py:156
+msgid "Restrict referrers"
+msgstr "Restreindre les référents"
+
+#: src/pyams_auth_jwt/interfaces.py:157
+msgid "If this option is enabled, only selected referrers will be enabled"
+msgstr ""
+"Si cette option est activée, seuls les référents indiqués ci-dessous seront "
+"autorisés"
+
+#: src/pyams_auth_jwt/interfaces.py:161
+msgid "Allowed referrers"
+msgstr "Référents autorisés"
+
+#: src/pyams_auth_jwt/interfaces.py:162
+msgid "Only selected referrers will be allowed to use this client key"
+msgstr ""
+"Seules les requêtes dont l'origine correspond à l'un de ces référents seront "
+"authentifiées"
+
+#: src/pyams_auth_jwt/interfaces.py:180
+msgid "Audience defines the target of JWT tokens"
+msgstr ""
+"L'audience définit le destinataire des jetons JWT générés par le module"
+
+#: src/pyams_auth_jwt/interfaces.py:183 src/pyams_auth_jwt/interfaces.py:252
 msgid "Access token attribute"
 msgstr "Nom du jeton d'accès"
 
-#: src/pyams_auth_jwt/interfaces.py:85
+#: src/pyams_auth_jwt/interfaces.py:184
 msgid ""
 "Name of the JSON attribute containing access token returned by REST APIs"
 msgstr ""
 "Nom de l'attribut JSON retourné par l'API REST contenant le jeton d'accès"
 
-#: src/pyams_auth_jwt/interfaces.py:90 src/pyams_auth_jwt/interfaces.py:155
+#: src/pyams_auth_jwt/interfaces.py:189 src/pyams_auth_jwt/interfaces.py:258
 msgid "Refresh token attribute"
 msgstr "Nom du jeton de rafraîchissement"
 
-#: src/pyams_auth_jwt/interfaces.py:91
+#: src/pyams_auth_jwt/interfaces.py:190
 msgid ""
 "Name of the JSON attribute containing refresh token returned by REST APIs"
 msgstr ""
 "Nom de l'attribut JSON retourné par l'API REST contenant le jeton de "
 "rafraîchissement"
 
-#: src/pyams_auth_jwt/interfaces.py:98
+#: src/pyams_auth_jwt/interfaces.py:197
 msgid "Enable JWT direct authentication?"
 msgstr "Activer le mode \"local\" ?"
 
-#: src/pyams_auth_jwt/interfaces.py:99
+#: src/pyams_auth_jwt/interfaces.py:198
 msgid "Enable direct login via JWT authentication"
 msgstr "Activer la gestion en local des jetons JWT"
 
-#: src/pyams_auth_jwt/interfaces.py:103
-msgid "JWT encoding algorithm"
-msgstr "Algorithme d'encryptage"
-
-#: src/pyams_auth_jwt/interfaces.py:104
+#: src/pyams_auth_jwt/interfaces.py:203
 msgid ""
-"HS* protocols are using the secret, while RS* protocols are using RSA keys"
+"HS* protocols are using a shared secret, RS* protocols are using RSA keys "
+"and ES* protocols are using ECDSA keys; ES* protocols are as safe as RS* "
+"protocols but quicker than RS* protocols for the same hash length"
 msgstr ""
-"Les protocoles de type HS utilisent le code secret, tandis que les "
-"protocoles de types RS utilisent les clés RSA"
+"Les protocoles HS* utilisent un secret partagé, les protocoles RS* utilisent "
+"des clés RSA et les protocoles ES* utilisent des clés ECDSA ; les protocoles "
+"ES* sont aussi sécurisés que les protocoles RS*, mais plus rapides pour des "
+"longueurs de clés de hashages équivalentes"
 
-#: src/pyams_auth_jwt/interfaces.py:110
+#: src/pyams_auth_jwt/interfaces.py:213
 msgid "JWT secret"
 msgstr "Code secret"
 
-#: src/pyams_auth_jwt/interfaces.py:111
+#: src/pyams_auth_jwt/interfaces.py:214
 msgid "This secret is required when using HS* encryption"
 msgstr ""
 "Ce code secret est nécessaire si vous utilisez un encryptage de type HS*"
 
-#: src/pyams_auth_jwt/interfaces.py:114
+#: src/pyams_auth_jwt/interfaces.py:217
 msgid "JWT private key"
 msgstr "Clé privée"
 
-#: src/pyams_auth_jwt/interfaces.py:115
+#: src/pyams_auth_jwt/interfaces.py:218
 msgid "The secret key is required when using RS* algorithm"
 msgstr "Une clé privée est nécessaire pour utiliser un encryptage de type RS*"
 
-#: src/pyams_auth_jwt/interfaces.py:118
+#: src/pyams_auth_jwt/interfaces.py:221
 msgid "JWT public key"
 msgstr "Clé publique"
 
-#: src/pyams_auth_jwt/interfaces.py:119
-msgid "The public key is required when using RS* algorithm"
-msgstr ""
-"Une clé publique est nécessaire pour utiliser un encryptage de type RS*"
-
-#: src/pyams_auth_jwt/interfaces.py:122
+#: src/pyams_auth_jwt/interfaces.py:225
 msgid "Access token lifetime"
 msgstr "Durée de vie des jetons d'accès"
 
-#: src/pyams_auth_jwt/interfaces.py:123
+#: src/pyams_auth_jwt/interfaces.py:226
 msgid "JWT access token lifetime, in seconds"
 msgstr "Durée de vie des jetons d'accès JWT, en secondes"
 
-#: src/pyams_auth_jwt/interfaces.py:127
+#: src/pyams_auth_jwt/interfaces.py:230
 msgid "Refresh token lifetime"
 msgstr "Durée de vie des jetons de refresh"
 
-#: src/pyams_auth_jwt/interfaces.py:128
+#: src/pyams_auth_jwt/interfaces.py:231
 msgid "JWT refresh token lifetime, in seconds"
 msgstr "Durée de vie des jetons de rafraîchissement, en secondes"
 
-#: src/pyams_auth_jwt/interfaces.py:132
+#: src/pyams_auth_jwt/interfaces.py:235
 msgid "Enable JWT proxy authentication?"
 msgstr "Activer le mode \"proxy\" ?"
 
-#: src/pyams_auth_jwt/interfaces.py:133
+#: src/pyams_auth_jwt/interfaces.py:236
 msgid ""
 "If this option is enabled, tokens management requests will be forwarded to "
 "another authentication authority"
@@ -109,11 +239,11 @@ msgstr ""
 "Si cette option est activée, la gestion des jetons JWT est déléguée à une "
 "autre autorité d'authentification"
 
-#: src/pyams_auth_jwt/interfaces.py:138
+#: src/pyams_auth_jwt/interfaces.py:241
 msgid "Authentication authority"
 msgstr "Autorité d'authentification"
 
-#: src/pyams_auth_jwt/interfaces.py:139
+#: src/pyams_auth_jwt/interfaces.py:242
 msgid ""
 "Base URL (protocol and hostname) of the authentication authority to which "
 "tokens management requests will be forwarded"
@@ -121,72 +251,72 @@ msgstr ""
 "URL de base (protocole et nom d'hôte) de l'autorité d'authentification à "
 "laquelle est déléguée la gestion des jetons"
 
-#: src/pyams_auth_jwt/interfaces.py:144
+#: src/pyams_auth_jwt/interfaces.py:247
 msgid "Token getter service"
 msgstr "Service d'obtention"
 
-#: src/pyams_auth_jwt/interfaces.py:145
+#: src/pyams_auth_jwt/interfaces.py:248
 msgid "REST HTTP service used to get a new token"
 msgstr ""
 "URL relative du service REST permettant de récupérer de nouveaux jetons JWT "
 "à partir d'un login et d'un mot de passe"
 
-#: src/pyams_auth_jwt/interfaces.py:150
+#: src/pyams_auth_jwt/interfaces.py:253
 msgid ""
 "Name of the JSON attribute returned by REST API containing access tokens"
 msgstr ""
 "Nom de l'attribut JSON retourné par l'API REST contenant les jetons d'accès"
 
-#: src/pyams_auth_jwt/interfaces.py:156
+#: src/pyams_auth_jwt/interfaces.py:259
 msgid ""
 "Name of the JSON attribute returned by REST API containing refresh tokens"
 msgstr ""
 "Nom de l'attribut JSON retourné par l'API REST contenant les jetons de "
 "rafraîchissement"
 
-#: src/pyams_auth_jwt/interfaces.py:161
+#: src/pyams_auth_jwt/interfaces.py:264
 msgid "Token claims getter"
 msgstr "Service de consultation"
 
-#: src/pyams_auth_jwt/interfaces.py:162
+#: src/pyams_auth_jwt/interfaces.py:265
 msgid ""
 "REST HTTP service used to extract claims from provided authorization token"
 msgstr ""
-"URL relative du service REST permettant d'extraire les \"réclamations"
-"\" (claims) des jetons JWT"
+"URL relative du service REST permettant d'extraire les "
+"\"réclamations\" (claims) des jetons JWT"
 
-#: src/pyams_auth_jwt/interfaces.py:167
+#: src/pyams_auth_jwt/interfaces.py:270
 msgid "Token refresh service"
 msgstr "Service de rafraîchissement"
 
-#: src/pyams_auth_jwt/interfaces.py:168
+#: src/pyams_auth_jwt/interfaces.py:271
 msgid "REST HTTP service used to get a new access token with a refresh token"
 msgstr ""
 "URL relative du service REST permettant de récupérer un nouveau jeton "
 "d'accès à partir d'un jeton de rafraîchissement"
 
-#: src/pyams_auth_jwt/interfaces.py:173
+#: src/pyams_auth_jwt/interfaces.py:276
 msgid "Token verify service"
 msgstr "Service de vérification"
 
-#: src/pyams_auth_jwt/interfaces.py:174
+#: src/pyams_auth_jwt/interfaces.py:277
 msgid "REST HTTP service used to check validity of an existing token"
 msgstr ""
 "URL relative du service REST permettant de vérifier la validité d'un jeton"
 
-#: src/pyams_auth_jwt/interfaces.py:179
+#: src/pyams_auth_jwt/interfaces.py:282
 msgid "Verify SSL?"
 msgstr "Vérification SSL ?"
 
-#: src/pyams_auth_jwt/interfaces.py:180
+#: src/pyams_auth_jwt/interfaces.py:283
 msgid "If 'no', SSL certificates will not be verified"
 msgstr "Si 'non', les certificats SSL ne seront pas vérifiés"
 
-#: src/pyams_auth_jwt/interfaces.py:184
+#: src/pyams_auth_jwt/interfaces.py:287
 msgid "Use verified tokens cache?"
 msgstr "Mettre les jetons en cache ?"
 
-#: src/pyams_auth_jwt/interfaces.py:185
+#: src/pyams_auth_jwt/interfaces.py:288
 msgid ""
 "If selected, this option allows to store credentials in a local cache from "
 "which they can be reused"
@@ -194,56 +324,56 @@ msgstr ""
 "En sélectionnant cette option, les jetons validés seront mis en cache, de "
 "façon à limiter les requêtes auprès de l'autorité d'authentification"
 
-#: src/pyams_auth_jwt/interfaces.py:190
+#: src/pyams_auth_jwt/interfaces.py:293
 msgid "Selected tokens cache"
 msgstr "Cache de jetons"
 
-#: src/pyams_auth_jwt/interfaces.py:191
+#: src/pyams_auth_jwt/interfaces.py:294
 msgid "Beaker cache selected to store validated tokens"
 msgstr "Cache pré-défini dans lequel seront stockés les jetons"
 
-#: src/pyams_auth_jwt/interfaces.py:200
+#: src/pyams_auth_jwt/interfaces.py:303
 msgid "You can't enable both local and proxy modes"
 msgstr ""
 "Vous ne pouvez pas activer le mode local et le mode proxy en même temps !"
 
-#: src/pyams_auth_jwt/interfaces.py:203
+#: src/pyams_auth_jwt/interfaces.py:306
 msgid "You must choose an algorithm to enable JWT authentication"
 msgstr ""
 "Vous devez sélectionner un algorithme d'encryptage pour activer "
 "l'authentification JWT"
 
-#: src/pyams_auth_jwt/interfaces.py:206
-msgid "You must define JWT secret to use HS256 algorithm"
+#: src/pyams_auth_jwt/interfaces.py:309
+msgid "You must define JWT secret to use HS* algorithms"
 msgstr ""
-"Vous devez définir un code secret pour utiliser un encryptage de type HS*"
+"Vous devez définir un code secret pour utiliser un algorithme de type HS*"
 
-#: src/pyams_auth_jwt/interfaces.py:209
-msgid "You must define a private and a public key to use RS256 algorithm"
+#: src/pyams_auth_jwt/interfaces.py:312
+msgid "You must define a private and a public key to use RS* or ES* algorithms"
 msgstr ""
 "Vous devez définir une clé privée et une clé publique pour utiliser un "
-"encryptage de type RS*"
+"algorithme de type RS* ou ES*"
 
-#: src/pyams_auth_jwt/interfaces.py:213
+#: src/pyams_auth_jwt/interfaces.py:316
 msgid "You must define authentication authority to use proxy mode"
 msgstr ""
 "Vous devez indiquer l'autorité d'authentification pour utiliser le mode "
 "proxy !"
 
-#: src/pyams_auth_jwt/interfaces.py:215
+#: src/pyams_auth_jwt/interfaces.py:318
 msgid "You must choose a cache to enable tokens caching"
 msgstr ""
 "Vous devez sélectionner un cache pour activer la mise en cache des jetons"
 
-#: src/pyams_auth_jwt/zmi/plugin.py:50 src/pyams_auth_jwt/zmi/plugin.py:60
+#: src/pyams_auth_jwt/zmi/plugin.py:53 src/pyams_auth_jwt/zmi/plugin.py:63
 msgid "JWT configuration"
 msgstr "Configuration JWT"
 
-#: src/pyams_auth_jwt/zmi/plugin.py:61
+#: src/pyams_auth_jwt/zmi/plugin.py:64
 msgid "JWT tokens settings"
 msgstr "Paramétrage des jetons JWT"
 
-#: src/pyams_auth_jwt/zmi/plugin.py:109
+#: src/pyams_auth_jwt/zmi/plugin.py:113
 msgid ""
 "JWT authentication module \"local mode\" allows to generate, check and "
 "refresh tokens locally.\n"
@@ -258,19 +388,29 @@ msgstr ""
 "pour partager des jetons entre plusieurs applications qui peuvent s'appuyer "
 "sur une autorité d'authentification commune)."
 
-#: src/pyams_auth_jwt/zmi/plugin.py:122
+#: src/pyams_auth_jwt/zmi/plugin.py:126
 msgid ""
-"You can use the `openssl` command to generate your keys:\n"
+"To generate your RSA keys for RS* protocols, use:\n"
 "\n"
-"    openssl genpkey -algorithm RSA -out private-key.pem\n"
-"    openssl rsa -pubout -in private-key.pem -out public-key.pem\n"
+"    openssl genpkey -algorithm RSA -out private-key-rsa.pem\n"
+"    openssl rsa -pubout -in private-key-rsa.pem -out public-key-rsa.pem\n"
+"    \n"
+"To generate ECDSA keys for ES* protocols, use:\n"
+"\n"
+"    openssl ecparam -genkey -name secp521r1 -out private-key-ecdsa.pem\n"
+"    openssl ec -pubout -in private-key-ecdsa.pem -out public-key-ecdsa.pem\n"
 msgstr ""
-"Vous pouvez utiliser la commande `openssl` pour générer vos clés :\n"
+"Pour générer des clés RSA keys destinées aux protocoles RS*, utilisez:\n"
 "\n"
-"         openssl genpkey -algorithm RSA -out private-key.pem\n"
-"         openssl rsa -pubout -in private-key.pem -out public-key.pem\n"
+"    openssl genpkey -algorithm RSA -out private-key-rsa.pem\n"
+"    openssl rsa -pubout -in private-key-rsa.pem -out public-key-rsa.pem\n"
+"    \n"
+"Pour générer des clés ECDSA destinées aux protocoles ES*, utilisez:\n"
+"\n"
+"    openssl ecparam -genkey -name secp521r1 -out private-key-ecdsa.pem\n"
+"    openssl ec -pubout -in private-key-ecdsa.pem -out public-key-ecdsa.pem\n"
 
-#: src/pyams_auth_jwt/zmi/plugin.py:156
+#: src/pyams_auth_jwt/zmi/plugin.py:165
 msgid ""
 "JWT authentication module \"proxy mode\" relies on another authentication "
 "authority (which can be another application using this JWT package) to "
@@ -288,14 +428,70 @@ msgstr ""
 "les jetons validés, afin de limiter le nombre de requêtes transmises à "
 "l'autorité d'authentification."
 
+#: src/pyams_auth_jwt/zmi/container.py:45
+#: src/pyams_auth_jwt/zmi/container.py:235
+msgid "JWT client keys"
+msgstr "Clés JWT"
+
+#: src/pyams_auth_jwt/zmi/container.py:83
+msgid "Click icon to enable or disable this client key"
+msgstr "Cliquer pour activer ou désactiver cette clé"
+
+#: src/pyams_auth_jwt/zmi/container.py:120
+msgid "Label"
+msgstr "Libellé"
+
+#: src/pyams_auth_jwt/zmi/container.py:168
+msgid "Principal"
+msgstr "Mandataire"
+
+#: src/pyams_auth_jwt/zmi/__init__.py:58
+msgid "Add JWT client key"
+msgstr "Ajouter une clé JWT"
+
+#: src/pyams_auth_jwt/zmi/__init__.py:72
+msgid "New JWT client key"
+msgstr "Nouvelle clé JWT"
+
+#: src/pyams_auth_jwt/zmi/__init__.py:73
+msgid "New JWT client key properties"
+msgstr "Propriétés de la nouvelle clé JWT"
+
+#: src/pyams_auth_jwt/zmi/__init__.py:103
+#: src/pyams_auth_jwt/zmi/__init__.py:192
+msgid "Plug-in: JWT client keys authentication"
+msgstr "Module : Authentification JWT"
+
+#: src/pyams_auth_jwt/zmi/__init__.py:121
+msgid "This client ID is already used!"
+msgstr "Cet identifiant de clé est déjà utilisé !"
+
+#: src/pyams_auth_jwt/zmi/__init__.py:167
+msgid "JWT client key properties"
+msgstr "Propriétés de la clé"
+
+#~ msgid ""
+#~ "HS* protocols are using the secret, while RS* protocols are using RSA keys"
+#~ msgstr ""
+#~ "Les protocoles de type HS utilisent le code secret, tandis que les "
+#~ "protocoles de types RS utilisent les clés RSA"
+
+#~ msgid ""
+#~ "You can use the `openssl` command to generate your keys:\n"
+#~ "\n"
+#~ "    openssl genpkey -algorithm RSA -out private-key.pem\n"
+#~ "    openssl rsa -pubout -in private-key.pem -out public-key.pem\n"
+#~ msgstr ""
+#~ "Vous pouvez utiliser la commande `openssl` pour générer vos clés :\n"
+#~ "\n"
+#~ "         openssl genpkey -algorithm RSA -out private-key.pem\n"
+#~ "         openssl rsa -pubout -in private-key.pem -out public-key.pem\n"
+
 #~ msgid "Security manager"
 #~ msgstr "Gestionnaire de sécurité"
 
 #~ msgid "Invalid credentials!"
 #~ msgstr "Paramètres de connexion invalides !"
-
-#~ msgid "Enable JWT login?"
-#~ msgstr "Activer l'authentification JWT ?"
 
 #~ msgid "Send cookie?"
 #~ msgstr "Envoyer un cookie ?"
