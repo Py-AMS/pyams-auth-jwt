@@ -87,6 +87,10 @@ class IJWTProxyHandler(Interface):
 class IJWTSecurityConfiguration(Interface):
     """Security manager configuration interface for JWT"""
 
+    audience = TextLine(title=_("Audience"),
+                        description=_("Audience defines the target of JWT tokens"),
+                        required=False)
+    
     access_token_name = TextLine(title=_("Access token attribute"),
                                  description=_("Name of the JSON attribute containing "
                                                "access token returned by REST APIs"),

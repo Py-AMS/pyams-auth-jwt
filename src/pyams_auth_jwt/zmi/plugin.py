@@ -60,7 +60,8 @@ class JWTSecurityConfigurationEditForm(AdminEditForm):
     title = _("JWT configuration")
     legend = _("JWT tokens settings")
 
-    fields = Fields(IJWTSecurityConfiguration).select('access_token_name', 'refresh_token_name')
+    fields = Fields(IJWTSecurityConfiguration).select('audience', 'access_token_name',
+                                                      'refresh_token_name')
 
     def get_content(self):
         return IJWTSecurityConfiguration(self.context)

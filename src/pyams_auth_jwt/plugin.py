@@ -52,15 +52,17 @@ PARSED_CREDENTIALS_ENVKEY = "pyams_auth_jwt.credentials"
 class JWTSecurityConfiguration(Persistent, Contained):
     """JWT security configuration"""
 
+    audience = FieldProperty(IJWTSecurityConfiguration['audience'])
+    access_token_name = FieldProperty(IJWTSecurityConfiguration['access_token_name'])
+    refresh_token_name = FieldProperty(IJWTSecurityConfiguration['refresh_token_name'])
+    
     local_mode = FieldProperty(IJWTSecurityConfiguration['local_mode'])
     algorithm = FieldProperty(IJWTSecurityConfiguration['algorithm'])
     secret = FieldProperty(IJWTSecurityConfiguration['secret'])
     private_key = FieldProperty(IJWTSecurityConfiguration['private_key'])
     public_key = FieldProperty(IJWTSecurityConfiguration['public_key'])
     access_expiration = FieldProperty(IJWTSecurityConfiguration['access_expiration'])
-    access_token_name = FieldProperty(IJWTSecurityConfiguration['access_token_name'])
     refresh_expiration = FieldProperty(IJWTSecurityConfiguration['refresh_expiration'])
-    refresh_token_name = FieldProperty(IJWTSecurityConfiguration['refresh_token_name'])
 
     proxy_mode = FieldProperty(IJWTSecurityConfiguration['proxy_mode'])
     authority = FieldProperty(IJWTSecurityConfiguration['authority'])
@@ -94,11 +96,16 @@ class JWTAuthenticationPlugin(metaclass=ClassPropertyType):
     prefix = 'jwt'
     title = _("JWT authentication")
 
-    audience = None
     leeway = 0
     callback = None
     json_encoder = None
 
+    @property
+    def audience(self):
+        """Audience getter"""
+        configuration = self.configuration
+        return configuration.audience if (configuration is not None) else None
+    
     @classproperty
     def http_header(cls):  # pylint: disable=no-self-argument,no-self-use
         """HTTP header setting"""
