@@ -206,7 +206,7 @@ dist-3.12:
     stage: dist
     image: python:3.12
     script:
-        - pip install pip==24.2 setuptools==68.0.0 zc.buildout==3.2.0 zc.recipe.egg==2.0.7
+        - pip install pip==25.0.1 setuptools==75.8.2 zc.buildout==4.0 zc.recipe.egg==2.0.7
         - buildout
         - ./bin/test
         - buildout setup setup.py bdist_wheel
