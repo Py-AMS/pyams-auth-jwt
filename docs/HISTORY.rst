@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.2.1
+-----
+ - added support for Python 3.12
+
 2.2.0
 -----
  - added support for registered JWT client keys
